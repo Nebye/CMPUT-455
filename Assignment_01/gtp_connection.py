@@ -239,7 +239,16 @@ class GtpConnection:
             
     def gogui_rules_final_result_cmd(self, args):
         """ Implement this function for Assignment 1 """
-        self.respond("unknown")
+        #self.respond("unknown")
+        
+        # Check for horizontal win (probably doesn't work thou)
+        """horizontal = self.board[self.play_cmd]
+        if (is_Sublist(horizontal, self.board.current_player)):
+            self.respond("win for ", self.board.current_player*5)"""
+        
+        # Check for vertical win
+        # Check for Diagonal Pos win (-> ^)
+        # Check for Diagonal Neg win (-> v)
 
     def play_cmd(self, args):
         """ Modify this function for Assignment 1 """
@@ -287,6 +296,12 @@ class GtpConnection:
             self.respond(move_as_string)
         else:
             self.respond("Illegal move: {}".format(move_as_string))
+    
+    # Check the sublist        
+    def is_Sublist(lst1, lst2):
+        ls1 = [element for element in lst1 if element in lst2]
+        ls2 = [element for element in lst2 if element in lst1]
+        return ls1 == ls2    
 
     """
     ==========================================================================
