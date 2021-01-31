@@ -11,7 +11,7 @@ from sys import stdin, stdout, stderr
 from board_util import (
     GoBoardUtil,
     BLACK,
-    WHITE,
+    WHITE,``
     EMPTY,
     BORDER,
     PASS,
@@ -239,7 +239,125 @@ class GtpConnection:
             
     def gogui_rules_final_result_cmd(self, args):
         """ Implement this function for Assignment 1 """
-        #self.respond("unknown")
+        #ADD BOARD BOUNDARIES
+        #ADD RESET COUNTER
+        counter = 0
+        startingColor = startingColorPiece
+        #Horizontal Right
+        for counter in range(0,4):
+            currColor = currColorPeice
+            if (startingColor == currColor):
+                counter = counter + 1
+                #counter keeps track of pieces of the same colour
+                currPosX = currPosX + 1
+                #currPos to move along the board
+            else:
+                counter = 0
+                break
+
+        #Horizontal Left
+        for counter in range(0,4):
+            currColor = currColorPeice
+            if (boardPosPiece == BLACK):
+                counter = counter + 1
+                #counter keeps track of pieces of the same colour
+                currPosX = currPosX - 1
+                #currPos to move along the board
+            else:
+                counter = 0
+                break                
+            
+        #Vertical Up
+        for y in range(0,4):
+            currColor = currColorPeice
+            if (boardPosPiece == BLACK):
+                y = y + 1
+                #x keeps track of pieces of the same colour
+                currPosY = currPosY + 1
+                #currPos to move along the board
+            else:
+                counter = 0
+                break                
+                            
+        #Vertical Down
+        for y in range(0,4):
+            currColor = currColorPeice
+            if (boardPosPiece == BLACK):
+                y = y + 1
+                #counter keeps track of pieces of the same colour
+                currPosY = currPos - 1
+                #currPos to move along the board
+            else:
+                counter = 0
+                break                
+            
+        #Diagonal NE
+        for row in range(currPosX, size-1):
+            currColor = currColorPeice
+            for column in range(currPosY, 0):
+                if (boardPosPiece == BLACK):
+                    counter = counter + 1
+                    #counter keeps track of pieces of the same colour
+                    currPosX = currPosX + 1
+                    currPosY = currPos + 1
+                    #currPos to move along the board
+                else:
+                    counter = 0
+                    break                    
+                    
+        #Diagonal NW
+        for row in range(currPosX, 0):
+            currColor = currColorPeice
+            for column in range(currPosY, 0):
+                if (boardPosPiece == BLACK):
+                    counter = counter + 1
+                    #counter keeps track of pieces of the same colour
+                    currPosX = currPosX - 1
+                    currPosY = currPos + 1
+                    #currPos to move along the board    
+                else:
+                    counter = 0
+                    break                    
+                    
+        #Diagonal SE
+        for row in range(currPosX, size-1):
+            currColor = currColorPeice
+            for column in range(currPosY, size-1):
+                if (boardPosPiece == BLACK):
+                    counter = counter + 1
+                    #counter keeps track of pieces of the same colour
+                    currPosX = currPosX + 1
+                    currPosY = currPos - 1
+                    #currPos to move along the board     
+                else:
+                    counter = 0
+                    break                    
+                    
+        #Diagonal SW
+        for row in range(currPosX, 0):
+            currColor = currColorPeice
+            for column in range(currPosY, size-1):
+                if (boardPosPiece == BLACK):
+                    counter = counter + 1
+                    #counter keeps track of pieces of the same colour
+                    currPosX = currPosX - 1
+                    currPosY = currPos - 1
+                    #currPos to move along the board        
+                else:
+                    counter = 0
+                    break                    
+                    
+        if (counter == 5):
+            if (color == BLACK):
+                self.respond("Black Wins")        
+            if (color == WHITE):
+                self.respond("White Wins")   
+                
+        if (board == full & counter != 5):
+            self.respond("Draw") 
+            
+        if (board != full & counter != 5):
+            self.respond("unknown")
         
         # Check for horizontal win (probably doesn't work thou)
         """horizontal = self.board[self.play_cmd]
