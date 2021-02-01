@@ -11,7 +11,7 @@ from sys import stdin, stdout, stderr
 from board_util import (
     GoBoardUtil,
     BLACK,
-    WHITE,``
+    WHITE,
     EMPTY,
     BORDER,
     PASS,
@@ -258,7 +258,7 @@ class GtpConnection:
         #Horizontal Left
         for counter in range(0,4):
             currColor = currColorPeice
-            if (boardPosPiece == BLACK):
+            if (startingColor == currColor):
                 counter = counter + 1
                 #counter keeps track of pieces of the same colour
                 currPosX = currPosX - 1
@@ -270,7 +270,7 @@ class GtpConnection:
         #Vertical Up
         for y in range(0,4):
             currColor = currColorPeice
-            if (boardPosPiece == BLACK):
+            if (startingColor == currColor):
                 y = y + 1
                 #x keeps track of pieces of the same colour
                 currPosY = currPosY + 1
@@ -282,7 +282,7 @@ class GtpConnection:
         #Vertical Down
         for y in range(0,4):
             currColor = currColorPeice
-            if (boardPosPiece == BLACK):
+            if (startingColor == currColor):
                 y = y + 1
                 #counter keeps track of pieces of the same colour
                 currPosY = currPos - 1
@@ -295,11 +295,11 @@ class GtpConnection:
         for row in range(currPosX, size-1):
             currColor = currColorPeice
             for column in range(currPosY, 0):
-                if (boardPosPiece == BLACK):
+                if (startingColor == currColor):
                     counter = counter + 1
                     #counter keeps track of pieces of the same colour
                     currPosX = currPosX + 1
-                    currPosY = currPos + 1
+                    currPosY = currPosY + 1
                     #currPos to move along the board
                 else:
                     counter = 0
@@ -309,11 +309,11 @@ class GtpConnection:
         for row in range(currPosX, 0):
             currColor = currColorPeice
             for column in range(currPosY, 0):
-                if (boardPosPiece == BLACK):
+                if (startingColor == currColor):
                     counter = counter + 1
                     #counter keeps track of pieces of the same colour
                     currPosX = currPosX - 1
-                    currPosY = currPos + 1
+                    currPosY = currPosY + 1
                     #currPos to move along the board    
                 else:
                     counter = 0
@@ -323,11 +323,11 @@ class GtpConnection:
         for row in range(currPosX, size-1):
             currColor = currColorPeice
             for column in range(currPosY, size-1):
-                if (boardPosPiece == BLACK):
+                if (startingColor == currColor):
                     counter = counter + 1
                     #counter keeps track of pieces of the same colour
                     currPosX = currPosX + 1
-                    currPosY = currPos - 1
+                    currPosY = currPosY - 1
                     #currPos to move along the board     
                 else:
                     counter = 0
@@ -337,11 +337,11 @@ class GtpConnection:
         for row in range(currPosX, 0):
             currColor = currColorPeice
             for column in range(currPosY, size-1):
-                if (boardPosPiece == BLACK):
+                if (startingColor == currColor):
                     counter = counter + 1
                     #counter keeps track of pieces of the same colour
                     currPosX = currPosX - 1
-                    currPosY = currPos - 1
+                    currPosY = currPosY - 1
                     #currPos to move along the board        
                 else:
                     counter = 0
