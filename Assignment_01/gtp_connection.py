@@ -213,7 +213,7 @@ class GtpConnection:
     def gogui_rules_legal_moves_cmd(self, args):
         """ Implement this function for Assignment 1 """
         legal_coords = []
-        if self.win == None:
+        if (self.win == None):
             for move in self.board.get_empty_points():
                 coord = point_to_coord(move, self.board.size)
                 legal_coords.append(format_point(coord))
@@ -244,14 +244,14 @@ class GtpConnection:
                     assert False
             str += '\n'
         self.respond(str)
-    #Change func  
+    #Change func  (already started this - check commit "slight mods")
     def check_nbrs(self, point, color, direction):
         connected = 0
         while True:
-            if self.board.get_color(point + direction) == color:
-                connected += 1
-                point += direction
-            elif connected == 4:
+            if (self.board.get_color(point + direction) == color):
+                connected = connected + 1
+                point = point + direction
+            elif (connected == 4):
                 break
             else:
                 break
@@ -264,29 +264,32 @@ class GtpConnection:
             
     def gogui_rules_final_result_cmd(self, args):
         """ Implement this function for Assignment 1 """
-        #rewrite function
-        directions = [(self.board.NS, -self.board.NS),(1,-1),(self.board.NS + 1, -self.board.NS - 1),(self.board.NS - 1, -self.board.NS + 1)]
-        if self.board.get_empty_points().size != 0:
+        # rewrite function (already started this - check commit "slight mods")
+        directions = [(self.board.NS, -self.board.NS), 
+                      (1, -1), 
+                      (self.board.NS + 1, -self.board.NS - 1), 
+                      (self.board.NS - 1, -self.board.NS + 1)]
+        if (self.board.get_empty_points().size != 0):
             p = False
             for rown in range(1,self.board.size+1):
                 for coln in range(1, self.board.size+1):
                     pt = coord_to_point(rown,coln,self.board.size)
                     color = self.board.get_color(pt)
-                    if color != EMPTY:
+                    if (color != EMPTY):
                         for dirs in directions:
                             connected = self.check_win(pt,color,dirs)
-                            if self.check_win(pt,color,dirs):
-                                if color == BLACK:
+                            if (self.check_win(pt,color,dirs)):
+                                if (color == BLACK):
                                     self.respond("black")
-                                elif color == WHITE:
+                                elif (color == WHITE):
                                     self.respond("white")
                                 p = True
                                 break
-                    if p:
+                    if (p == True):
                         break
-                if p:
+                if (p == True):
                     break
-            if not p:
+            if (p == True):
                 self.respond("unknown")
         else:
             self.respond("draw")
@@ -296,6 +299,7 @@ class GtpConnection:
         """
         play a move args[1] for given color args[0] in {'b','w'}
         """
+        # rewrite function (already started this - check commit "slight mods")
         try:
             board_color = args[0].lower()
             board_move = args[1]
@@ -306,20 +310,20 @@ class GtpConnection:
             else:
                 pass
             color = color_to_int(board_color)
-            if args[1].lower() == "pass":
+            if (args[1].lower() == "pass"):
                 self.board.play_move(PASS, color)
                 self.board.current_player = GoBoardUtil.opponent(color)
                 self.respond()
                 return
             coord = move_to_coord(args[1], self.board.size)
-            if coord:
+            if (coord == True):
                 move = coord_to_point(coord[0], coord[1], self.board.size)
             else:
                 self.error(
                     "Error executing move {} converted from {}".format(move, args[1])
                 )
                 return
-            if not self.board.play_move(move, color):
+            if (self.board.play_move(move, color) == False):
                 self.respond('Illegal Move: "{}" occupied'.format(board_move.lower()))
                 return
             else:
@@ -333,19 +337,19 @@ class GtpConnection:
     def genmove_cmd(self, args):
         """ Modify this function for Assignment 1 """
         """ generate a move for color args[0] in {'b','w'} """
-        #rewrite function
+        # rewrite function (already started this - check commit "slight mods")
         board_color = args[0].lower()
         color = color_to_int(board_color)
         legal_moves = self.board.get_empty_points()
-        if legal_moves.size != 0 and self.board.win == None:
+        if ((legal_moves.size != 0) and (self.board.win == None)):
             move = random.choice(legal_moves)
             move_coord = point_to_coord(move, self.board.size)
             move_as_string = format_point(move_coord).lower()
             self.board.play_move(move, color)
             self.respond(move_as_string)
-        elif legal_moves.size == 0:
+        elif (legal_moves.size == 0):
             self.respond("pass")
-        elif self.board.win != None:
+        elif (self.board.win != None):
             self.respond("resign")
     
     ## Check the sublist        
@@ -355,12 +359,14 @@ class GtpConnection:
         #return ls1 == ls2    
         
     def check_win(self,pt,color,dirs):
+        # rewrite function (already started this - check commit "slight mods")
         connected = 1
         for _dir in dirs:
             connected += self.check_nbrs(pt, color, _dir)
-        if connected >= 5:
+        if (connected >= 5):
             return True
-        return False        
+        else:
+            return False        
 
     """
     ==========================================================================
