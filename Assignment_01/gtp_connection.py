@@ -316,7 +316,7 @@ class GtpConnection:
                 self.respond()
                 return
             coord = move_to_coord(args[1], self.board.size)
-            if (coord == True):
+            if coord:
                 move = coord_to_point(coord[0], coord[1], self.board.size)
             else:
                 self.error(
