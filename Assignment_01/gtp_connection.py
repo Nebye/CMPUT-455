@@ -37,6 +37,9 @@ class GtpConnection:
         self._debug_mode = debug_mode
         self.go_engine = go_engine
         self.board = board
+        
+        self.win = None
+        #Change win
         self.commands = {
             "protocol_version": self.protocol_version_cmd,
             "quit": self.quit_cmd,
@@ -209,8 +212,13 @@ class GtpConnection:
 
     def gogui_rules_legal_moves_cmd(self, args):
         """ Implement this function for Assignment 1 """
-        self.respond()
-        return
+        legal_coords = []
+        if self.win == None:
+            for move in self.board.get_empty_points():
+                coord = point_to_coord(move, self.board.size)
+                legal_coords.append(format_point(coord))
+        list_to_str = ' '.join(sorted(legal_coords)).lower()
+        self.respond(list_to_str)
 
     def gogui_rules_side_to_move_cmd(self, args):
         """ We already implemented this function for Assignment 1 """
@@ -236,137 +244,52 @@ class GtpConnection:
                     assert False
             str += '\n'
         self.respond(str)
+    #Change func  
+    def check_nbrs(self, point, color, direction):
+        connected = 0
+        while True:
+            if self.board.get_color(point + direction) == color:
+                connected += 1
+                point += direction
+            elif connected == 4:
+                break
+            else:
+                break
+        return connected
+        
+    #Change func  
+    def set_winner(self,color):
+        self.win = color
+        return True        
             
     def gogui_rules_final_result_cmd(self, args):
         """ Implement this function for Assignment 1 """
-        #ADD BOARD BOUNDARIES
-        #ADD RESET COUNTER
-        counter = 0
-        startingColor = startingColorPiece
-        #Horizontal Right
-        for counter in range(0,4):
-            currColor = currColorPeice
-            if (startingColor == currColor):
-                counter = counter + 1
-                #counter keeps track of pieces of the same colour
-                currPosX = currPosX + 1
-                #currPos to move along the board
-            else:
-                counter = 0
-                break
-
-        #Horizontal Left
-        for counter in range(0,4):
-            currColor = currColorPeice
-            if (startingColor == currColor):
-                counter = counter + 1
-                #counter keeps track of pieces of the same colour
-                currPosX = currPosX - 1
-                #currPos to move along the board
-            else:
-                counter = 0
-                break                
-            
-        #Vertical Up
-        for y in range(0,4):
-            currColor = currColorPeice
-            if (startingColor == currColor):
-                y = y + 1
-                #x keeps track of pieces of the same colour
-                currPosY = currPosY + 1
-                #currPos to move along the board
-            else:
-                counter = 0
-                break                
-                            
-        #Vertical Down
-        for y in range(0,4):
-            currColor = currColorPeice
-            if (startingColor == currColor):
-                y = y + 1
-                #counter keeps track of pieces of the same colour
-                currPosY = currPos - 1
-                #currPos to move along the board
-            else:
-                counter = 0
-                break                
-            
-        #Diagonal NE
-        for row in range(currPosX, size-1):
-            currColor = currColorPeice
-            for column in range(currPosY, 0):
-                if (startingColor == currColor):
-                    counter = counter + 1
-                    #counter keeps track of pieces of the same colour
-                    currPosX = currPosX + 1
-                    currPosY = currPosY + 1
-                    #currPos to move along the board
-                else:
-                    counter = 0
-                    break                    
-                    
-        #Diagonal NW
-        for row in range(currPosX, 0):
-            currColor = currColorPeice
-            for column in range(currPosY, 0):
-                if (startingColor == currColor):
-                    counter = counter + 1
-                    #counter keeps track of pieces of the same colour
-                    currPosX = currPosX - 1
-                    currPosY = currPosY + 1
-                    #currPos to move along the board    
-                else:
-                    counter = 0
-                    break                    
-                    
-        #Diagonal SE
-        for row in range(currPosX, size-1):
-            currColor = currColorPeice
-            for column in range(currPosY, size-1):
-                if (startingColor == currColor):
-                    counter = counter + 1
-                    #counter keeps track of pieces of the same colour
-                    currPosX = currPosX + 1
-                    currPosY = currPosY - 1
-                    #currPos to move along the board     
-                else:
-                    counter = 0
-                    break                    
-                    
-        #Diagonal SW
-        for row in range(currPosX, 0):
-            currColor = currColorPeice
-            for column in range(currPosY, size-1):
-                if (startingColor == currColor):
-                    counter = counter + 1
-                    #counter keeps track of pieces of the same colour
-                    currPosX = currPosX - 1
-                    currPosY = currPosY - 1
-                    #currPos to move along the board        
-                else:
-                    counter = 0
-                    break                    
-                    
-        if (counter == 5):
-            if (color == BLACK):
-                self.respond("Black Wins")        
-            if (color == WHITE):
-                self.respond("White Wins")   
-                
-        if (board == full & counter != 5):
-            self.respond("Draw") 
-            
-        if (board != full & counter != 5):
-            self.respond("unknown")
-        
-        # Check for horizontal win (probably doesn't work thou)
-        """horizontal = self.board[self.play_cmd]
-        if (is_Sublist(horizontal, self.board.current_player)):
-            self.respond("win for ", self.board.current_player*5)"""
-        
-        # Check for vertical win
-        # Check for Diagonal Pos win (-> ^)
-        # Check for Diagonal Neg win (-> v)
+        #rewrite function
+        directions = [(self.board.NS, -self.board.NS),(1,-1),(self.board.NS + 1, -self.board.NS - 1),(self.board.NS - 1, -self.board.NS + 1)]
+        if self.board.get_empty_points().size != 0:
+            p = False
+            for rown in range(1,self.board.size+1):
+                for coln in range(1, self.board.size+1):
+                    pt = coord_to_point(rown,coln,self.board.size)
+                    color = self.board.get_color(pt)
+                    if color != EMPTY:
+                        for dirs in directions:
+                            connected = self.check_win(pt,color,dirs)
+                            if self.check_win(pt,color,dirs):
+                                if color == BLACK:
+                                    self.respond("black")
+                                elif color == WHITE:
+                                    self.respond("white")
+                                p = True
+                                break
+                    if p:
+                        break
+                if p:
+                    break
+            if not p:
+                self.respond("unknown")
+        else:
+            self.respond("draw")
 
     def play_cmd(self, args):
         """ Modify this function for Assignment 1 """
@@ -376,6 +299,12 @@ class GtpConnection:
         try:
             board_color = args[0].lower()
             board_move = args[1]
+            test = ["b", "w", "B", "W"]
+            if (board_color not in test):
+                self.respond('Illegal Move: "{}" wrong color'.format(board_color))
+                return
+            else:
+                pass
             color = color_to_int(board_color)
             if args[1].lower() == "pass":
                 self.board.play_move(PASS, color)
@@ -391,7 +320,7 @@ class GtpConnection:
                 )
                 return
             if not self.board.play_move(move, color):
-                self.respond("Illegal Move: {}".format(board_move))
+                self.respond('Illegal Move: "{}" occupied'.format(board_move.lower()))
                 return
             else:
                 self.debug_msg(
@@ -399,27 +328,39 @@ class GtpConnection:
                 )
             self.respond()
         except Exception as e:
-            self.respond("Error: {}".format(str(e)))
+            self.respond("{}".format(str(e)))
 
     def genmove_cmd(self, args):
         """ Modify this function for Assignment 1 """
         """ generate a move for color args[0] in {'b','w'} """
+        #rewrite function
         board_color = args[0].lower()
         color = color_to_int(board_color)
-        move = self.go_engine.get_move(self.board, color)
-        move_coord = point_to_coord(move, self.board.size)
-        move_as_string = format_point(move_coord)
-        if self.board.is_legal(move, color):
+        legal_moves = self.board.get_empty_points()
+        if legal_moves.size != 0 and self.board.win == None:
+            move = random.choice(legal_moves)
+            move_coord = point_to_coord(move, self.board.size)
+            move_as_string = format_point(move_coord).lower()
             self.board.play_move(move, color)
             self.respond(move_as_string)
-        else:
-            self.respond("Illegal move: {}".format(move_as_string))
+        elif legal_moves.size == 0:
+            self.respond("pass")
+        elif self.board.win != None:
+            self.respond("resign")
     
-    # Check the sublist        
-    def is_Sublist(lst1, lst2):
-        ls1 = [element for element in lst1 if element in lst2]
-        ls2 = [element for element in lst2 if element in lst1]
-        return ls1 == ls2    
+    ## Check the sublist        
+    #def is_Sublist(lst1, lst2):
+        #ls1 = [element for element in lst1 if element in lst2]
+        #ls2 = [element for element in lst2 if element in lst1]
+        #return ls1 == ls2    
+        
+    def check_win(self,pt,color,dirs):
+        connected = 1
+        for _dir in dirs:
+            connected += self.check_nbrs(pt, color, _dir)
+        if connected >= 5:
+            return True
+        return False        
 
     """
     ==========================================================================
@@ -516,9 +457,9 @@ def move_to_coord(point_str, board_size):
         if row < 1:
             raise ValueError
     except (IndexError, ValueError):
-        raise ValueError("invalid point: '{}'".format(s))
+        raise ValueError('invalid point: "{}"'.format(s))
     if not (col <= board_size and row <= board_size):
-        raise ValueError("point off board: '{}'".format(s))
+        raise ValueError('Illegal move: "{}" wrong coordinate'.format(s))
     return row, col
 
 
