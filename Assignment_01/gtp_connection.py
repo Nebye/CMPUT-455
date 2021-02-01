@@ -244,23 +244,6 @@ class GtpConnection:
                     assert False
             str += '\n'
         self.respond(str)
-    #Change func  (already started this - check commit "slight mods")
-    def check_nbrs(self, point, color, direction):
-        connected = 0
-        while True:
-            if (self.board.get_color(point + direction) == color):
-                connected = connected + 1
-                point = point + direction
-            elif (connected == 4):
-                break
-            else:
-                break
-        return connected
-        
-    #Change func  
-    def set_winner(self,color):
-        self.win = color
-        return True        
             
     def gogui_rules_final_result_cmd(self, args):
         """ Implement this function for Assignment 1 """
@@ -277,8 +260,8 @@ class GtpConnection:
                     color = self.board.get_color(pt)
                     if (color != EMPTY):
                         for dirs in directions:
-                            connected = self.check_win(pt,color,dirs)
-                            if (self.check_win(pt,color,dirs)):
+                            connected = self.win_con(pt,color,dirs)
+                            if (self.win_con(pt,color,dirs)):
                                 if (color == BLACK):
                                     self.respond("black")
                                 elif (color == WHITE):
@@ -358,15 +341,33 @@ class GtpConnection:
         #ls2 = [element for element in lst2 if element in lst1]
         #return ls1 == ls2    
         
-    def check_win(self,pt,color,dirs):
+    def win_con(self,point,color,direction):
         # rewrite function (already started this - check commit "slight mods")
-        connected = 1
-        for _dir in dirs:
-            connected += self.check_nbrs(pt, color, _dir)
-        if (connected >= 5):
+        counter = 1
+        for direction in directions:
+            counter += self.check_nbrs(point, color, direction)
+        if (counter > 4):
             return True
         else:
-            return False        
+            return False   
+        
+    #Change func  (already started this - check commit "slight mods")
+    def check_nbrs(self, point, color, direction):
+        connected = 0
+        while True:
+            if (self.board.get_color(point + direction) == color):
+                connected = connected + 1
+                point = point + direction
+            elif (connected == 4):
+                break
+            else:
+                break
+        return connected
+        
+    #Change func  
+    def set_winner(self,color):
+        self.win = color
+        return True                
 
     """
     ==========================================================================
