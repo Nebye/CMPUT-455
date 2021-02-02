@@ -254,25 +254,25 @@ class GtpConnection:
                       (self.board.NS - 1, -self.board.NS + 1)]
         if (self.board.get_empty_points().size != 0):
             p = False
-            for rown in range(1,self.board.size+1):
-                for coln in range(1, self.board.size+1):
-                    pt = coord_to_point(rown,coln,self.board.size)
+            for coln in range(1,self.board.size+1):
+                for rown in range(1, self.board.size+1):
+                    pt = coord_to_point(coln,rown,self.board.size)
                     color = self.board.get_color(pt)
                     if (color != EMPTY):
                         for dirs in directions:
                             connected = self.win_con(pt,color,dirs)
                             if (self.win_con(pt,color,dirs)):
-                                if (color == BLACK):
-                                    self.respond("black")
-                                elif (color == WHITE):
+                                if (color == WHITE):
                                     self.respond("white")
+                                else:
+                                    self.respond("black")
                                 p = True
                                 break
                     if (p == True):
                         break
                 if (p == True):
                     break
-            if (p == True):
+            if (p == False):
                 self.respond("unknown")
         else:
             self.respond("draw")
@@ -283,6 +283,10 @@ class GtpConnection:
         play a move args[1] for given color args[0] in {'b','w'}
         """
         # rewrite function (already started this - check commit "slight mods")
+        directions = [(self.board.NS, -self.board.NS), 
+                      (1, -1), 
+                      (self.board.NS + 1, -self.board.NS - 1), 
+                      (self.board.NS - 1, -self.board.NS + 1)]        
         try:
             board_color = args[0].lower()
             board_move = args[1]
@@ -313,7 +317,9 @@ class GtpConnection:
                 self.debug_msg(
                     "Move: {}\nBoard:\n{}\n".format(board_move, self.board2d())
                 )
-            self.respond()
+                for _dir in directions:
+                    if self.win_con(move, color, _dir):
+                        self.set_winner(color)                
         except Exception as e:
             self.respond("{}".format(str(e)))
 
@@ -341,7 +347,7 @@ class GtpConnection:
         #ls2 = [element for element in lst2 if element in lst1]
         #return ls1 == ls2    
         
-    def win_con(self,point,color,direction):
+    def win_con(self,point,color,directions):
         # rewrite function (already started this - check commit "slight mods")
         counter = 1
         for direction in directions:
