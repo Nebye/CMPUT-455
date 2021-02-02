@@ -247,40 +247,9 @@ class GtpConnection:
                     assert False
             str += '\n'
         self.respond(str)
-            
-    #def gogui_rules_final_result_cmd(self, args):
-        #""" Implement this function for Assignment 1 """
-        ## rewrite function (already started this - check commit "slight mods")
-        #directions = [(1, -1), (self.board.NS, -self.board.NS), 
-                      #(self.board.NS - 1, -self.board.NS + 1), 
-                      #(self.board.NS + 1, -self.board.NS - 1)]
-        #if (self.board.get_empty_points().size != 0):
-            #check = False
-            #for coln in range(1,self.board.size+1):
-                #for rown in range(1, self.board.size+1):
-                    #currPoint = coord_to_point(coln,rown,self.board.size)
-                    #color = self.board.get_color(currPoint)
-                    #if (color != EMPTY):
-                        #for direction in directions:
-                            #if (self.win_con(currPoint,direction,color)):
-                                #if (color == WHITE):
-                                    #self.respond("white")
-                                #else:
-                                    #self.respond("black")
-                                #check = True
-                                #break
-                    #if (check == True):
-                        #break
-                #if (check == True):
-                    #break
-            #if (check == False):
-                #self.respond("unknown")
-        #else:
-            #self.respond("draw")
 
     def gogui_rules_final_result_cmd(self, args):
         """ Implement this function for Assignment 1 """
-        # rewrite function (already started this - check commit "slight mods")
         #Horizontal and Vertical check
         hori_verti = [(1, -1), (self.board.NS, -self.board.NS)]
         
@@ -370,7 +339,6 @@ class GtpConnection:
         """
         play a move args[1] for given color args[0] in {'b','w'}
         """
-        # rewrite function (already started this - check commit "slight mods")
         directions = [(self.board.NS, -self.board.NS), 
                       (1, -1), 
                       (self.board.NS + 1, -self.board.NS - 1), 
@@ -379,15 +347,11 @@ class GtpConnection:
         try:
             board_color = args[0].lower()
             board_move = args[1]
-            #point = np.where(board_move)
-            #point = point_to_coord(board_move, self.board.size)
-            #formatPoint = format_point(point)
             self.occupied.append(board_move)
             accept_colors = ["b", "w", "B", "W"]
             
             if (board_color not in accept_colors):
                 self.respond('Illegal Move: "{}" wrong color'.format(board_color))
-                #append to list
                 return
             
             else:
@@ -460,7 +424,6 @@ class GtpConnection:
         #return ls1 == ls2    
         
     def win_con(self,point,directions,color):
-        # rewrite function (already started this - check commit "slight mods")
         counter = 0
         
         for direction in directions:
@@ -472,7 +435,6 @@ class GtpConnection:
         else:
             return False   
         
-    #Change func  (already started this - check commit "slight mods")
     def adjacent_check(self, point, direction, color):
         counter = 0
         
