@@ -20,6 +20,7 @@ from board_util import (
 )
 import numpy as np
 import re
+import random
 
 
 class GtpConnection:
@@ -330,15 +331,20 @@ class GtpConnection:
         board_color = args[0].lower()
         color = color_to_int(board_color)
         legal_moves = self.board.get_empty_points()
-        if ((legal_moves.size != 0) and (self.winner == None)):
-            move = random.choice(legal_moves)
-            move_coord = point_to_coord(move, self.board.size)
-            move_as_string = format_point(move_coord).lower()
-            self.board.play_move(move, color)
-            self.respond(move_as_string)
-        elif (legal_moves.size == 0):
+        check1 = False
+        check2 = False
+        if (legal_moves.size != 0):
+            check1 = True
+            if (self.winner == None):
+                check2 = True
+                move = random.choice(legal_moves)
+                move_coord = point_to_coord(move, self.board.size)
+                move_as_string = format_point(move_coord).lower()
+                self.board.play_move(move, color)
+                self.respond(move_as_string)
+        if (check1 == True and check2 == False and legal_moves.size == 0):
             self.respond("pass")
-        elif (self.winner != None):
+        elif (check1 == True and check2 == False and self.winner != None):
             self.respond("resign")
     
     ## Check the sublist        
@@ -351,7 +357,7 @@ class GtpConnection:
         # rewrite function (already started this - check commit "slight mods")
         counter = 1
         for direction in directions:
-            counter += self.adjacent_check(point, color, direction)
+            counter = counter + self.adjacent_check(point, color, direction)
         if (counter > 4):
             return True
         else:
@@ -359,16 +365,16 @@ class GtpConnection:
         
     #Change func  (already started this - check commit "slight mods")
     def adjacent_check(self, point, color, direction):
-        connected = 0
+        counter = 0
         while True:
             if (self.board.get_color(point + direction) == color):
-                connected = connected + 1
+                counter = counter + 1
                 point = point + direction
-            elif (connected == 4):
+            elif (counter == 4):
                 break
             else:
                 break
-        return connected
+        return counter
         
     #Change func  
     def pick_win(self,color):
