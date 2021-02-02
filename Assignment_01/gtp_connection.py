@@ -249,31 +249,29 @@ class GtpConnection:
     def gogui_rules_final_result_cmd(self, args):
         """ Implement this function for Assignment 1 """
         # rewrite function (already started this - check commit "slight mods")
-        directions = [(self.board.NS, -self.board.NS), 
-                      (1, -1), 
-                      (self.board.NS + 1, -self.board.NS - 1), 
-                      (self.board.NS - 1, -self.board.NS + 1)]
+        directions = [(1, -1), (self.board.NS, -self.board.NS), 
+                      (self.board.NS - 1, -self.board.NS + 1), 
+                      (self.board.NS + 1, -self.board.NS - 1)]
         if (self.board.get_empty_points().size != 0):
-            p = False
+            check = False
             for coln in range(1,self.board.size+1):
                 for rown in range(1, self.board.size+1):
-                    pt = coord_to_point(coln,rown,self.board.size)
-                    color = self.board.get_color(pt)
+                    currPoint = coord_to_point(coln,rown,self.board.size)
+                    color = self.board.get_color(currPoint)
                     if (color != EMPTY):
-                        for dirs in directions:
-                            connected = self.win_con(pt,dirs,color)
-                            if (self.win_con(pt,dirs,color)):
+                        for direction in directions:
+                            if (self.win_con(currPoint,direction,color)):
                                 if (color == WHITE):
                                     self.respond("white")
                                 else:
                                     self.respond("black")
-                                p = True
+                                check = True
                                 break
-                    if (p == True):
+                    if (check == True):
                         break
-                if (p == True):
+                if (check == True):
                     break
-            if (p == False):
+            if (check == False):
                 self.respond("unknown")
         else:
             self.respond("draw")
