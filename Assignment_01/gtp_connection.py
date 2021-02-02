@@ -246,24 +246,55 @@ class GtpConnection:
             str += '\n'
         self.respond(str)
             
+    #def gogui_rules_final_result_cmd(self, args):
+        #""" Implement this function for Assignment 1 """
+        ## rewrite function (already started this - check commit "slight mods")
+        #directions = [(1, -1), (self.board.NS, -self.board.NS), 
+                      #(self.board.NS - 1, -self.board.NS + 1), 
+                      #(self.board.NS + 1, -self.board.NS - 1)]
+        #if (self.board.get_empty_points().size != 0):
+            #check = False
+            #for coln in range(1,self.board.size+1):
+                #for rown in range(1, self.board.size+1):
+                    #currPoint = coord_to_point(coln,rown,self.board.size)
+                    #color = self.board.get_color(currPoint)
+                    #if (color != EMPTY):
+                        #for direction in directions:
+                            #if (self.win_con(currPoint,direction,color)):
+                                #if (color == WHITE):
+                                    #self.respond("white")
+                                #else:
+                                    #self.respond("black")
+                                #check = True
+                                #break
+                    #if (check == True):
+                        #break
+                #if (check == True):
+                    #break
+            #if (check == False):
+                #self.respond("unknown")
+        #else:
+            #self.respond("draw")
+
     def gogui_rules_final_result_cmd(self, args):
         """ Implement this function for Assignment 1 """
         # rewrite function (already started this - check commit "slight mods")
-        directions = [(1, -1), (self.board.NS, -self.board.NS), 
-                      (self.board.NS - 1, -self.board.NS + 1), 
-                      (self.board.NS + 1, -self.board.NS - 1)]
+        hori_verti = [(1, -1), (self.board.NS, -self.board.NS)]
         if (self.board.get_empty_points().size != 0):
             check = False
+            check2 = False
             for coln in range(1,self.board.size+1):
                 for rown in range(1, self.board.size+1):
-                    currPoint = coord_to_point(coln,rown,self.board.size)
-                    color = self.board.get_color(currPoint)
-                    if (color != EMPTY):
-                        for direction in directions:
-                            if (self.win_con(currPoint,direction,color)):
-                                if (color == WHITE):
+                    if (self.board.get_color(coord_to_point(coln,rown,self.board.size)) != EMPTY):
+                        for horiVerti in hori_verti:
+                            if (self.win_con(coord_to_point(coln,rown,self.board.size),
+                                             horiVerti,
+                                             self.board.get_color(coord_to_point(coln,rown,self.board.size)))):
+                                if (self.board.get_color(coord_to_point(coln,rown,self.board.size)) == WHITE):
+                                    check2 = True
                                     self.respond("white")
                                 else:
+                                    check2 = True
                                     self.respond("black")
                                 check = True
                                 break
@@ -271,11 +302,39 @@ class GtpConnection:
                         break
                 if (check == True):
                     break
-            if (check == False):
+            if (check == False and check2 == True):
                 self.respond("unknown")
         else:
             self.respond("draw")
-
+            
+        diagonals = [(self.board.NS - 1, -self.board.NS + 1), 
+                      (self.board.NS + 1, -self.board.NS - 1)]        
+            
+        if (self.board.get_empty_points().size != 0):
+            check = False
+            for coln in range(1,self.board.size+1):
+                for rown in range(1, self.board.size+1):
+                    if (self.board.get_color(coord_to_point(coln,rown,self.board.size)) != EMPTY):
+                        for diagonal in diagonals:
+                            if (self.win_con(coord_to_point(coln,rown,self.board.size),
+                                             diagonal,
+                                             self.board.get_color(coord_to_point(coln,rown,self.board.size)))):
+                                if (self.board.get_color(coord_to_point(coln,rown,self.board.size)) == WHITE):
+                                    self.respond("white")
+                                else:
+                                    self.respond("black")
+                                check = True
+                                break
+                    if (check == True and check2 == False):
+                        break
+                if (check == True and check2 == False):
+                    break
+            if (check == False and check2 == False):
+                self.respond("unknown")
+        else:
+            self.respond("draw")        
+                    
+                    
     def play_cmd(self, args):
         """ Modify this function for Assignment 1 """
         """
