@@ -38,7 +38,7 @@ class GtpConnection:
         self.go_engine = go_engine
         self.board = board
         
-        self.win = None
+        self.winner = None
         #Change win
         self.commands = {
             "protocol_version": self.protocol_version_cmd,
@@ -213,7 +213,7 @@ class GtpConnection:
     def gogui_rules_legal_moves_cmd(self, args):
         """ Implement this function for Assignment 1 """
         legal_coords = []
-        if (self.win == None):
+        if (self.winner == None):
             for move in self.board.get_empty_points():
                 coord = point_to_coord(move, self.board.size)
                 legal_coords.append(format_point(coord))
@@ -290,8 +290,8 @@ class GtpConnection:
         try:
             board_color = args[0].lower()
             board_move = args[1]
-            test = ["b", "w", "B", "W"]
-            if (board_color not in test):
+            accept_colors = ["b", "w", "B", "W"]
+            if (board_color not in accept_colors):
                 self.respond('Illegal Move: "{}" wrong color'.format(board_color))
                 return
             else:
@@ -319,7 +319,7 @@ class GtpConnection:
                 )
                 for _dir in directions:
                     if self.win_con(move, color, _dir):
-                        self.set_winner(color)                
+                        self.pick_win(color)                
         except Exception as e:
             self.respond("{}".format(str(e)))
 
@@ -330,7 +330,7 @@ class GtpConnection:
         board_color = args[0].lower()
         color = color_to_int(board_color)
         legal_moves = self.board.get_empty_points()
-        if ((legal_moves.size != 0) and (self.board.win == None)):
+        if ((legal_moves.size != 0) and (self.winner == None)):
             move = random.choice(legal_moves)
             move_coord = point_to_coord(move, self.board.size)
             move_as_string = format_point(move_coord).lower()
@@ -338,7 +338,7 @@ class GtpConnection:
             self.respond(move_as_string)
         elif (legal_moves.size == 0):
             self.respond("pass")
-        elif (self.board.win != None):
+        elif (self.winner != None):
             self.respond("resign")
     
     ## Check the sublist        
@@ -351,14 +351,14 @@ class GtpConnection:
         # rewrite function (already started this - check commit "slight mods")
         counter = 1
         for direction in directions:
-            counter += self.check_nbrs(point, color, direction)
+            counter += self.adjacent_check(point, color, direction)
         if (counter > 4):
             return True
         else:
             return False   
         
     #Change func  (already started this - check commit "slight mods")
-    def check_nbrs(self, point, color, direction):
+    def adjacent_check(self, point, color, direction):
         connected = 0
         while True:
             if (self.board.get_color(point + direction) == color):
@@ -371,8 +371,8 @@ class GtpConnection:
         return connected
         
     #Change func  
-    def set_winner(self,color):
-        self.win = color
+    def pick_win(self,color):
+        self.winner = color
         return True                
 
     """
