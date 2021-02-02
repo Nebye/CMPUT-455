@@ -261,8 +261,8 @@ class GtpConnection:
                     color = self.board.get_color(pt)
                     if (color != EMPTY):
                         for dirs in directions:
-                            connected = self.win_con(pt,color,dirs)
-                            if (self.win_con(pt,color,dirs)):
+                            connected = self.win_con(pt,dirs,color)
+                            if (self.win_con(pt,dirs,color)):
                                 if (color == WHITE):
                                     self.respond("white")
                                 else:
@@ -319,7 +319,7 @@ class GtpConnection:
                     "Move: {}\nBoard:\n{}\n".format(board_move, self.board2d())
                 )
                 for _dir in directions:
-                    if self.win_con(move, color, _dir):
+                    if self.win_con(move, _dir, color):
                         self.pick_win(color)                
         except Exception as e:
             self.respond("{}".format(str(e)))
@@ -353,21 +353,21 @@ class GtpConnection:
         #ls2 = [element for element in lst2 if element in lst1]
         #return ls1 == ls2    
         
-    def win_con(self,point,color,directions):
+    def win_con(self,point,directions,color):
         # rewrite function (already started this - check commit "slight mods")
-        counter = 1
+        counter = 0
         for direction in directions:
-            counter = counter + self.adjacent_check(point, color, direction)
-        if (counter > 4):
+            counter = counter + self.adjacent_check(point, direction, color)
+        if (counter > 3):
             return True
         else:
             return False   
         
     #Change func  (already started this - check commit "slight mods")
-    def adjacent_check(self, point, color, direction):
+    def adjacent_check(self, point, direction, color):
         counter = 0
         while True:
-            if (self.board.get_color(point + direction) == color):
+            if (self.board.get_color(direction + point) == color):
                 counter = counter + 1
                 point = point + direction
             elif (counter == 4):
