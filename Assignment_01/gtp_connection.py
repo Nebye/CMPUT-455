@@ -177,6 +177,7 @@ class GtpConnection:
 
     def clear_board_cmd(self, args):
         """ clear the board """
+        self.winner = None
         self.reset(self.board.size)
         self.respond()
 
@@ -279,58 +280,86 @@ class GtpConnection:
     def gogui_rules_final_result_cmd(self, args):
         """ Implement this function for Assignment 1 """
         # rewrite function (already started this - check commit "slight mods")
+        #Horizontal and Vertical check
         hori_verti = [(1, -1), (self.board.NS, -self.board.NS)]
+        
         if (self.board.get_empty_points().size != 0):
             check = False
             check2 = False
+            
+            #Iterate through each column
             for coln in range(1,self.board.size+1):
+                
+                #Iterate through each row
                 for rown in range(1, self.board.size+1):
+                    
                     if (self.board.get_color(coord_to_point(coln,rown,self.board.size)) != EMPTY):
+                        
+                        #Iterate through hori_verti list
                         for horiVerti in hori_verti:
+                            
                             if (self.win_con(coord_to_point(coln,rown,self.board.size),
                                              horiVerti,
                                              self.board.get_color(coord_to_point(coln,rown,self.board.size)))):
+                                
                                 if (self.board.get_color(coord_to_point(coln,rown,self.board.size)) == WHITE):
                                     check2 = True
                                     self.respond("white")
+                                    
                                 else:
                                     check2 = True
                                     self.respond("black")
                                 check = True
                                 break
+                            
                     if (check == True):
                         break
+                    
                 if (check == True):
                     break
-            if (check == False and check2 == True):
-                self.respond("unknown")
+                
         else:
             self.respond("draw")
             
+        #Diagonal check
         diagonals = [(self.board.NS - 1, -self.board.NS + 1), 
                       (self.board.NS + 1, -self.board.NS - 1)]        
             
         if (self.board.get_empty_points().size != 0):
             check = False
+            
+            #Iterate through each column
             for coln in range(1,self.board.size+1):
+                
+                #Iterate through each row
                 for rown in range(1, self.board.size+1):
+                    
                     if (self.board.get_color(coord_to_point(coln,rown,self.board.size)) != EMPTY):
+                        
+                        #Iterate through hori_verti list
                         for diagonal in diagonals:
+                            
                             if (self.win_con(coord_to_point(coln,rown,self.board.size),
                                              diagonal,
                                              self.board.get_color(coord_to_point(coln,rown,self.board.size)))):
+                                
                                 if (self.board.get_color(coord_to_point(coln,rown,self.board.size)) == WHITE):
                                     self.respond("white")
+                                    
                                 else:
                                     self.respond("black")
                                 check = True
                                 break
+                            
                     if (check == True and check2 == False):
                         break
+                    
                 if (check == True and check2 == False):
                     break
+                
             if (check == False and check2 == False):
                 self.respond("unknown")
+                
         else:
             self.respond("draw")        
                     
@@ -344,54 +373,67 @@ class GtpConnection:
         directions = [(self.board.NS, -self.board.NS), 
                       (1, -1), 
                       (self.board.NS + 1, -self.board.NS - 1), 
-                      (self.board.NS - 1, -self.board.NS + 1)]        
+                      (self.board.NS - 1, -self.board.NS + 1)]      
+        
         try:
             board_color = args[0].lower()
             board_move = args[1]
             accept_colors = ["b", "w", "B", "W"]
+            
             if (board_color not in accept_colors):
                 self.respond('Illegal Move: "{}" wrong color'.format(board_color))
                 return
+            
             else:
                 pass
             color = color_to_int(board_color)
+            
             if (args[1].lower() == "pass"):
                 self.board.play_move(PASS, color)
                 self.board.current_player = GoBoardUtil.opponent(color)
                 self.respond()
                 return
             coord = move_to_coord(args[1], self.board.size)
+            
             if coord:
                 move = coord_to_point(coord[0], coord[1], self.board.size)
+                
             else:
                 self.error(
                     "Error executing move {} converted from {}".format(move, args[1])
                 )
                 return
+            
             if (self.board.play_move(move, color) == False):
                 self.respond('Illegal Move: "{}" occupied'.format(board_move.lower()))
                 return
+            
             else:
                 self.debug_msg(
                     "Move: {}\nBoard:\n{}\n".format(board_move, self.board2d())
                 )
-                for _dir in directions:
-                    if self.win_con(move, _dir, color):
-                        self.pick_win(color)                
+                
+                for direction in directions:
+                    win = self.win_con(move, direction, color)
+                    if win:
+                        self.pick_win(color)
+                        
         except Exception as e:
             self.respond("{}".format(str(e)))
 
     def genmove_cmd(self, args):
         """ Modify this function for Assignment 1 """
         """ generate a move for color args[0] in {'b','w'} """
-        # rewrite function (already started this - check commit "slight mods")
+        
         board_color = args[0].lower()
         color = color_to_int(board_color)
         legal_moves = self.board.get_empty_points()
         check1 = False
         check2 = False
+        
         if (legal_moves.size != 0):
             check1 = True
+            
             if (self.winner == None):
                 check2 = True
                 move = random.choice(legal_moves)
@@ -399,8 +441,10 @@ class GtpConnection:
                 move_as_string = format_point(move_coord).lower()
                 self.board.play_move(move, color)
                 self.respond(move_as_string)
+                
         if (check1 == True and check2 == False and legal_moves.size == 0):
             self.respond("pass")
+            
         elif (check1 == True and check2 == False and self.winner != None):
             self.respond("resign")
     
@@ -413,24 +457,32 @@ class GtpConnection:
     def win_con(self,point,directions,color):
         # rewrite function (already started this - check commit "slight mods")
         counter = 0
+        
         for direction in directions:
             counter = counter + self.adjacent_check(point, direction, color)
+            
         if (counter > 3):
             return True
+        
         else:
             return False   
         
     #Change func  (already started this - check commit "slight mods")
     def adjacent_check(self, point, direction, color):
         counter = 0
+        
         while True:
+            
             if (self.board.get_color(direction + point) == color):
                 counter = counter + 1
                 point = point + direction
+                
             elif (counter == 4):
                 break
+            
             else:
                 break
+            
         return counter
         
     #Change func  
