@@ -22,7 +22,6 @@ import numpy as np
 import re
 import random
 
-
 class GtpConnection:
     def __init__(self, go_engine, board, debug_mode=False):
         """
@@ -38,7 +37,7 @@ class GtpConnection:
         self._debug_mode = debug_mode
         self.go_engine = go_engine
         self.board = board
-        
+        self.occupied = []
         self.winner = None
         #Change win
         self.commands = {
@@ -214,13 +213,15 @@ class GtpConnection:
 
     def gogui_rules_legal_moves_cmd(self, args):
         """ Implement this function for Assignment 1 """
-        legal_coords = []
+        unoccupied = []
         if (self.winner == None):
-            for move in self.board.get_empty_points():
-                coord = point_to_coord(move, self.board.size)
-                legal_coords.append(format_point(coord))
-        list_to_str = ' '.join(sorted(legal_coords)).lower()
-        self.respond(list_to_str)
+            for coord in self.board.get_empty_points():
+                point = point_to_coord(coord, self.board.size)
+                formatPoint = format_point(point)
+                if ((formatPoint in self.occupied) == False):
+                    unoccupied.append(formatPoint)
+        final = ' '.join(sorted(unoccupied)).lower()
+        self.respond(final)
 
     def gogui_rules_side_to_move_cmd(self, args):
         """ We already implemented this function for Assignment 1 """
@@ -378,10 +379,15 @@ class GtpConnection:
         try:
             board_color = args[0].lower()
             board_move = args[1]
+            #point = np.where(board_move)
+            #point = point_to_coord(board_move, self.board.size)
+            #formatPoint = format_point(point)
+            self.occupied.append(board_move)
             accept_colors = ["b", "w", "B", "W"]
             
             if (board_color not in accept_colors):
                 self.respond('Illegal Move: "{}" wrong color'.format(board_color))
+                #append to list
                 return
             
             else:
@@ -424,25 +430,24 @@ class GtpConnection:
     def genmove_cmd(self, args):
         """ Modify this function for Assignment 1 """
         """ generate a move for color args[0] in {'b','w'} """
-        
         board_color = args[0].lower()
         color = color_to_int(board_color)
-        legal_moves = self.board.get_empty_points()
+        unoccupied = self.board.get_empty_points()
         check1 = False
         check2 = False
         
-        if (legal_moves.size != 0):
+        if (unoccupied.size != 0):
             check1 = True
             
             if (self.winner == None):
                 check2 = True
-                move = random.choice(legal_moves)
+                move = random.choice(unoccupied)
                 move_coord = point_to_coord(move, self.board.size)
                 move_as_string = format_point(move_coord).lower()
                 self.board.play_move(move, color)
                 self.respond(move_as_string)
                 
-        if (check1 == True and check2 == False and legal_moves.size == 0):
+        if (check1 == True and check2 == False and unoccupied.size == 0):
             self.respond("pass")
             
         elif (check1 == True and check2 == False and self.winner != None):
