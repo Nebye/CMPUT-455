@@ -37,7 +37,9 @@ class GtpConnection:
         self._debug_mode = debug_mode
         self.go_engine = go_engine
         self.board = board
-        self.winner = None
+        
+        self.win = None
+        #Change win
         self.commands = {
             "protocol_version": self.protocol_version_cmd,
             "quit": self.quit_cmd,
@@ -243,82 +245,49 @@ class GtpConnection:
             str += '\n'
         self.respond(str)
             
-    #def gogui_rules_final_result_cmd(self, args):
-        #""" Implement this function for Assignment 1 """
-        ## rewrite function (already started this - check commit "slight mods")
-        #directions = [(self.board.NS, -self.board.NS), 
-                      #(1, -1), 
-                      #(self.board.NS + 1, -self.board.NS - 1), 
-                      #(self.board.NS - 1, -self.board.NS + 1)]
-        ##If the board has empty points
-        #if (self.board.get_empty_points().size != 0):
-            #p = False
-            #for rown in range(1,self.board.size+1):
-                #for coln in range(1, self.board.size+1):
-                    #pt = coord_to_point(rown,coln,self.board.size)
-                    #color = self.board.get_color(pt)
-                    #if (color != EMPTY):
-                        #for dirs in directions:
-                            #counter = self.win_con(pt,dirs,color)
-                            #if (self.win_con(pt,dirs,color)):
-                                #if color == BLACK:
-                                    #self.respond("black")
-                                #elif color == WHITE:
-                                    #self.respond("white")
-                                #p = True
-                                #break
-                    #if (p == True):
-                        #break
-                #if (p == True):
-                    #break
-            #if (p == False):
-                #self.respond("unknown")
-        #else:
-            #self.respond("draw")
-            
     def gogui_rules_final_result_cmd(self, args):
         """ Implement this function for Assignment 1 """
+        # rewrite function (already started this - check commit "slight mods")
         directions = [(self.board.NS, -self.board.NS), 
                       (1, -1), 
                       (self.board.NS + 1, -self.board.NS - 1), 
-                      (self.board.NS - 1, -self.board.NS + 1)]           
-        
-        if self.board.get_empty_points().size != 0:
+                      (self.board.NS - 1, -self.board.NS + 1)]
+        if (self.board.get_empty_points().size != 0):
             p = False
             for rown in range(1,self.board.size+1):
                 for coln in range(1, self.board.size+1):
                     pt = coord_to_point(rown,coln,self.board.size)
                     color = self.board.get_color(pt)
-                    if color != EMPTY:
+                    if (color != EMPTY):
                         for dirs in directions:
-                            connected = self.win_con(pt,dirs,color)
-                            if self.win_con(pt,dirs,color):
-                                if color == BLACK:
+                            connected = self.win_con(pt,color,dirs)
+                            if (self.win_con(pt,color,dirs)):
+                                if (color == BLACK):
                                     self.respond("black")
-                                elif color == WHITE:
+                                elif (color == WHITE):
                                     self.respond("white")
                                 p = True
                                 break
-                    if p:
+                    if (p == True):
                         break
-                if p:
+                if (p == True):
                     break
-            if not p:
+            if (p == True):
                 self.respond("unknown")
         else:
-            self.respond("draw")            
+            self.respond("draw")
 
     def play_cmd(self, args):
         """ Modify this function for Assignment 1 """
         """
         play a move args[1] for given color args[0] in {'b','w'}
         """
-        # rewrite function (already started this - check commit "slight mods")  
+        # rewrite function (already started this - check commit "slight mods")
         try:
             board_color = args[0].lower()
             board_move = args[1]
-            legal_colors = ["b", "w", "B", "W"]
-            if (board_color not in legal_colors):
+            test = ["b", "w", "B", "W"]
+            if (board_color not in test):
                 self.respond('Illegal Move: "{}" wrong color'.format(board_color))
                 return
             else:
@@ -344,14 +313,7 @@ class GtpConnection:
                 self.debug_msg(
                     "Move: {}\nBoard:\n{}\n".format(board_move, self.board2d())
                 )
-                directions = [(self.board.NS, -self.board.NS), 
-                              (1, -1), 
-                              (self.board.NS + 1, -self.board.NS - 1), 
-                              (self.board.NS - 1, -self.board.NS + 1)]                      
-                for direction in directions:
-                    if self.win_con(move, direction,color):
-                        self.pick_win(color)
-                        break                
+            self.respond()
         except Exception as e:
             self.respond("{}".format(str(e)))
 
@@ -379,36 +341,32 @@ class GtpConnection:
         #ls2 = [element for element in lst2 if element in lst1]
         #return ls1 == ls2    
         
-    #Check if there is a win
-    def win_con(self,point,directions,color):
+    def win_con(self,point,color,direction):
+        # rewrite function (already started this - check commit "slight mods")
         counter = 1
-        #Confirm 5 in a row
         for direction in directions:
-            counter = counter + self.adjacent_check(point, direction, color)
-        if (counter >= 5):
+            counter += self.check_nbrs(point, color, direction)
+        if (counter > 4):
             return True
         else:
             return False   
         
-    #Checks for adjacent pieces of the same color
-    def adjacent_check(self, point, direction, color):
-        counter = 0
+    #Change func  (already started this - check commit "slight mods")
+    def check_nbrs(self, point, color, direction):
+        connected = 0
         while True:
-            #Check next piece in direction
-            if (self.board.get_color(direction + point) == color):
-                counter = counter + 1
+            if (self.board.get_color(point + direction) == color):
+                connected = connected + 1
                 point = point + direction
-            #if 5 in a row
-            if (counter == 4):
+            elif (connected == 4):
                 break
-            
             else:
                 break
-        return counter     
+        return connected
         
-    #Determine the winner
-    def pick_win(self,color):
-        self.winner = color
+    #Change func  
+    def set_winner(self,color):
+        self.win = color
         return True                
 
     """
