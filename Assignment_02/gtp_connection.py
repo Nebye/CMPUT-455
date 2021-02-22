@@ -21,7 +21,8 @@ from board_util import (
 import numpy as np
 import re
 
-import time # for assignment 02
+import time # testing for assignment2
+import signal # testing for assignment2 - maybe swap with pyDispatcher (http://pydispatcher.sourceforge.net/)
 
 
 class GtpConnection:
@@ -39,6 +40,9 @@ class GtpConnection:
         self._debug_mode = debug_mode
         self.go_engine = go_engine
         self.board = board
+        
+        signal.signal(signal.SIGALRM, self.handler) # testing for assignment2
+        
         self.commands = {
             "protocol_version": self.protocol_version_cmd,
             "quit": self.quit_cmd,
@@ -262,8 +266,32 @@ class GtpConnection:
         self.respond('')  
     
     # TODO - Solve - number 2
+    # Compute the winner of the current position, assuming perfect play by both, within the current time limit.
+    # Winner is either b, w, draw, or unknown. 
+    # Write unknown if your solver cannot solve the game within the current time limit.
+    # Solving always starts with the current player (toPlay) going first.
+    # If the winner is toPlay or if its a draw, then also write a move that you found that achieves this best possible result.
+    # If there are several best moves, then write any one of them.
+    # If the winner is the opponent or unknown, then do not write any move in your GTP response.
     def solve_cmd(self, args):
-        pass
+        #start = time.time()
+        #while (timelimit <= start):
+            #pass
+        try:
+            self.sboard = self.board.copy()
+            signal.alarm(int(self.timelimit)-1)
+            winner,move = self.board.solve()
+            self.board = self.sboard
+            signal.alarm(0)
+            if move != "NoMove":
+                if move == None:
+                    self.respond('{} {}'.format(winner, self.board._point_to_coord(move)))
+                    return 
+                self.respond('{} {}'.format(winner, format_point(point_to_coord(move, self.board.size))))
+                return 
+            self.respond('{}'.format(winner))
+        except Exception as e:
+            self.respond('{}'.format(str(e)))        
     
     # TODO - edit function to incorporate stuff from number 3 - genmove color
     def genmove_cmd(self, args):
