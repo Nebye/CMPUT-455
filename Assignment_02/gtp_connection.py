@@ -21,6 +21,8 @@ from board_util import (
 import numpy as np
 import re
 
+import time # for assignment 02
+
 
 class GtpConnection:
     def __init__(self, go_engine, board, debug_mode=False):
@@ -57,8 +59,11 @@ class GtpConnection:
             "gogui-rules_side_to_move": self.gogui_rules_side_to_move_cmd,
             "gogui-rules_board": self.gogui_rules_board_cmd,
             "gogui-rules_final_result": self.gogui_rules_final_result_cmd,
-            "gogui-analyze_commands": self.gogui_analyze_cmd
+            "gogui-analyze_commands": self.gogui_analyze_cmd,
+            "timelimit": self.timelimit_cmd,
+            "solve": self.solve_cmd,
         }
+        self.timelimit = 1
 
         # used for argument checking
         # values: (required number of arguments,
@@ -250,6 +255,17 @@ class GtpConnection:
         except Exception as e:
             self.respond("illegal move: {}".format(str(e).replace('\'','')))
     
+    # TODO - Timelimit - number 1
+    # what i have currently is what i took from assignment 4 
+    def timelimit_cmd(self, args):
+        self.timelimit = args[0]
+        self.respond('')  
+    
+    # TODO - Solve - number 2
+    def solve_cmd(self, args):
+        pass
+    
+    # TODO - edit function to incorporate stuff from number 3 - genmove color
     def genmove_cmd(self, args):
         """
         Generate a move for the color args[0] in {'b', 'w'}, for the game of gomoku.
