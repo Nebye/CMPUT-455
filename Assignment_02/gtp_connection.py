@@ -22,7 +22,7 @@ import numpy as np
 import re
 
 import time # testing for assignment2
-import signal # testing for assignment2 - maybe swap with pyDispatcher (http://pydispatcher.sourceforge.net/)
+from pydispatch import dispatcher # testing for assignment2 - (http://pydispatcher.sourceforge.net/)
 
 
 class GtpConnection:
@@ -40,9 +40,6 @@ class GtpConnection:
         self._debug_mode = debug_mode
         self.go_engine = go_engine
         self.board = board
-        
-        signal.signal(signal.SIGALRM, self.handler) # testing for assignment2
-        
         self.commands = {
             "protocol_version": self.protocol_version_cmd,
             "quit": self.quit_cmd,
@@ -64,6 +61,7 @@ class GtpConnection:
             "gogui-rules_board": self.gogui_rules_board_cmd,
             "gogui-rules_final_result": self.gogui_rules_final_result_cmd,
             "gogui-analyze_commands": self.gogui_analyze_cmd,
+            
             "timelimit": self.timelimit_cmd,
             "solve": self.solve_cmd,
         }
@@ -279,24 +277,26 @@ class GtpConnection:
     # If there are several best moves, then write any one of them.
     # If the winner is the opponent or unknown, then do not write any move in your GTP response.
     def solve_cmd(self, args):
-        #start = time.time()
-        #while (timelimit <= start):
-            #pass
-        try:
-            self.sboard = self.board.copy()
-            signal.alarm(int(self.timelimit)-1)
-            winner,move = self.board.solve()
-            self.board = self.sboard
-            signal.alarm(0)
-            if move != "NoMove":
-                if move == None:
-                    self.respond('{} {}'.format(winner, self.board._point_to_coord(move)))
-                    return 
-                self.respond('{} {}'.format(winner, format_point(point_to_coord(move, self.board.size))))
-                return 
-            self.respond('{}'.format(winner))
-        except Exception as e:
-            self.respond('{}'.format(str(e)))        
+        start = time.time()
+        while (timelimit <= start):
+            pass
+        
+        # took from assignment 04 - does not work properly
+        #try:
+            #self.sboard = self.board.copy()
+            #signal.alarm(int(self.timelimit)-1)
+            #winner,move = self.board.solve()
+            #self.board = self.sboard
+            #signal.alarm(0)
+            #if move != "NoMove":
+                #if move == None:
+                    #self.respond('{} {}'.format(winner, self.board._point_to_coord(move)))
+                    #return 
+                #self.respond('{} {}'.format(winner, format_point(point_to_coord(move, self.board.size))))
+                #return 
+            #self.respond('{}'.format(winner))
+        #except Exception as e:
+            #self.respond('{}'.format(str(e)))        
     
     # TODO - edit function to incorporate stuff from number 3 - genmove color
     def genmove_cmd(self, args):
