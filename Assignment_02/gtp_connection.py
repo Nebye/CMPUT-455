@@ -281,13 +281,14 @@ class GtpConnection:
     def solve_cmd(self, args):
         INFINITY = 1000000
         # I don't think this works but gonna test it out anyway
+        
         try:
             signal.alarm(int(self.timelimit)-1)
             signal.alarm(0)
             while True:
                 print("running")
-        except Exception as e:
-            self.respond('{}'.format(str(e))
+        except (Exception as e): 
+            self.respond('{}'.format(str(e)))
         
         
         # aparently fun manual pip packages are no bueno
@@ -300,22 +301,6 @@ class GtpConnection:
             ## print("didn't finish within", self.timelimit, "seconds")
             #print("unknown")
         
-        # took from assignment 04 - does not work properly
-        #try:
-            #self.sboard = self.board.copy()
-            #signal.alarm(int(self.timelimit)-1)
-            #winner,move = self.board.solve()
-            #self.board = self.sboard
-            #signal.alarm(0)
-            #if move != "NoMove":
-                #if move == None:
-                    #self.respond('{} {}'.format(winner, self.board._point_to_coord(move)))
-                    #return 
-                #self.respond('{} {}'.format(winner, format_point(point_to_coord(move, self.board.size))))
-                #return 
-            #self.respond('{}'.format(winner))
-        #except Exception as e:
-            #self.respond('{}'.format(str(e)))       
     
     # helper functions for solver - naive minimax
     def minimaxOR(state, INFINITY):
@@ -328,7 +313,8 @@ class GtpConnection:
             if value > best:
                 best = value
             state.undoMove()
-        return best  
+        return best 
+    
     def minimaxAND(state):
         if state.endOfGame():
             return state.staticallyEvaluate() 
