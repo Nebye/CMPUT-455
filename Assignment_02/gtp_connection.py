@@ -272,10 +272,12 @@ class GtpConnection:
     # If there are several best moves, then write any one of them.
     # If the winner is the opponent or unknown, then do not write any move in your GTP response.
     def solve_cmd(self, args):
-        start = time.time()
-        while (timelimit+start >= start):
+        timelimit = 7
+        end = time.time() + timelimit
+
+        while(time.time() != end):
             print("still running")
-        print("finished")
+        print("finsih")
         
         # took from assignment 04 - does not work properly
         #try:
