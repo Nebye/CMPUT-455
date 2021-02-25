@@ -23,7 +23,7 @@ import re
 
 import time
 from interruptingcow import timeout
-# import signal
+import signal
 # from pydispatch import dispatcher # just in case signal doesn't work - (http://pydispatcher.sourceforge.net/)
 
 
