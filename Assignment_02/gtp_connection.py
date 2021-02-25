@@ -284,6 +284,7 @@ class GtpConnection:
         # nvm, we friends now...
         try:
             with timeout(float(self.timelimit), exception=RuntimeError):
+                # replace while loop with our solver
                 while True:
                     print("running")
         except(RuntimeError): # if it cannot run in the specified amount of time do this (play random move)
