@@ -22,7 +22,8 @@ import numpy as np
 import re
 
 import time # testing for assignment2
-from pydispatch import dispatcher # testing for assignment2 - (http://pydispatcher.sourceforge.net/)
+#from pydispatch import dispatcher # testing for assignment2 - (http://pydispatcher.sourceforge.net/)
+from interruptingcow import timeout
 
 
 class GtpConnection:
@@ -273,11 +274,17 @@ class GtpConnection:
     # If the winner is the opponent or unknown, then do not write any move in your GTP response.
     def solve_cmd(self, args):
         #timelimit = 7
-        end = time.time() + self.timelimit
-
-        while(time.time() <= end):
-            print("still running")
-        print("finsih")
+        #end = time.time() + float(self.timelimit)
+        #while(time.time() <= end):
+        #    print("still running")
+        #print("finsih")
+        
+        try:
+            with timeout(self.timelimit, exception=RuntimeError):
+                # perform a potentially very slow operation
+                pass
+        except RuntimeError:
+            print("didn't finish within 5 seconds")
         
         # took from assignment 04 - does not work properly
         #try:
