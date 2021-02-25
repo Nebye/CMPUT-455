@@ -22,7 +22,7 @@ import numpy as np
 import re
 
 import time # testing for assignment2
-#from pydispatch import dispatcher # testing for assignment2 - (http://pydispatcher.sourceforge.net/)
+# from pydispatch import dispatcher # testing for assignment2 - (http://pydispatcher.sourceforge.net/)
 from interruptingcow import timeout
 
 
@@ -280,10 +280,10 @@ class GtpConnection:
         #print("finsih")
         
         try:
-            with timeout(self.timelimit, exception=RuntimeError):
+            with timeout(float(self.timelimit), exception=RuntimeError):
                 # run our solver
                 pass
-        except RuntimeError: # if it cannot run in the specified amount of time do this (play random move)
+        except(RuntimeError): # if it cannot run in the specified amount of time do this (play random move)
             print("didn't finish within", self.timelimit, "seconds")
             # play random available move
         
