@@ -262,11 +262,6 @@ class GtpConnection:
     def timelimit_cmd(self, args):
         self.timelimit = args[0]
         self.respond('')  
-        
-    # stole from asn 4
-    def handler(self, signum, fram):
-        self.board = self.sboard
-        raise Exception("unknown")    
     
     # TODO - Solve - number 2
     # Compute the winner of the current position, assuming perfect play by both, within the current time limit.
