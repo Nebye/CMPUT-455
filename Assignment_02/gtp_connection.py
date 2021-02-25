@@ -22,7 +22,7 @@ import numpy as np
 import re
 
 import time
-from interruptingcow import timeout
+# from interruptingcow import timeout
 import signal
 # from pydispatch import dispatcher # just in case signal doesn't work - (http://pydispatcher.sourceforge.net/)
 
@@ -267,7 +267,9 @@ class GtpConnection:
         self.respond('')    
     
     # If solve cannot run within timelimit - call this function
-    def runOut(signam, frame):
+    def runOut(self, signam, frame):
+        #self.board = self.sboard
+        #raise Exception("unknown")        
         print("unknown")
         
     # TODO - Solve - number 2
@@ -281,9 +283,12 @@ class GtpConnection:
     def solve_cmd(self, args):
         INFINITY = 1000000
         # I don't think this works but gonna test it out anyway
-        
+        # Idk, if this doesn't work, I'm calling it a night
         try:
-            signal.alarm(int(self.timelimit)-1)
+            self.sboard = self.board.copy()
+            signal.alarm(int(self.timelimit))
+            winner,move = self.board.solve()
+            self.board = self.sboard
             signal.alarm(0)
             while True:
                 print("running")
