@@ -22,7 +22,7 @@ import numpy as np
 import re
 
 import time
-from interruptingcow import timeout # this cow sucks
+from interruptingcow import timeout
 # import signal
 # from pydispatch import dispatcher # just in case signal doesn't work - (http://pydispatcher.sourceforge.net/)
 
@@ -42,6 +42,7 @@ class GtpConnection:
         self._debug_mode = debug_mode
         self.go_engine = go_engine
         self.board = board
+        signal.signal(signal.SIGALRM, runOut)
         self.commands = {
             "protocol_version": self.protocol_version_cmd,
             "quit": self.quit_cmd,
@@ -265,6 +266,10 @@ class GtpConnection:
         self.timelimit = args[0]
         self.respond('')    
     
+    # If solve cannot run within timelimit - call this function
+    def runOut(signam, frame):
+        print("unknown")
+        
     # TODO - Solve - number 2
     # Compute the winner of the current position, assuming perfect play by both, within the current time limit.
     # Winner is either b, w, draw, or unknown. 
@@ -274,22 +279,26 @@ class GtpConnection:
     # If there are several best moves, then write any one of them.
     # If the winner is the opponent or unknown, then do not write any move in your GTP response.
     def solve_cmd(self, args):
-        #timelimit = 7
-        #end = time.time() + float(self.timelimit)
-        #while(time.time() <= end):
-        #    print("still running")
-        #print("finsih")
-        
-        # fuck this cow
-        # nvm, we friends now...
+        INFINITY = 1000000
+        # I don't think this works but gonna test it out anyway
         try:
-            with timeout(float(self.timelimit), exception=RuntimeError):
-                # replace while loop with our solver
-                while True:
-                    print("running")
-        except(RuntimeError): # if it cannot run in the specified amount of time do this (play random move)
-            print("didn't finish within", self.timelimit, "seconds")
-            # play random available move
+            signal.alarm(int(self.timelimit)-1)
+            signal.alarm(0)
+            while True:
+                print("running")
+        except Exception as e:
+            self.respond('{}'.format(str(e))
+        
+        
+        # aparently fun manual pip packages are no bueno
+        #try:
+            #with timeout(float(self.timelimit), exception=RuntimeError):
+                ## replace while loop with our solver
+                #while True:
+                    #print("running")
+        #except(RuntimeError): # if it cannot run in the specified amount of time print unknown
+            ## print("didn't finish within", self.timelimit, "seconds")
+            #print("unknown")
         
         # took from assignment 04 - does not work properly
         #try:
@@ -307,6 +316,30 @@ class GtpConnection:
             #self.respond('{}'.format(winner))
         #except Exception as e:
             #self.respond('{}'.format(str(e)))       
+    
+    # helper functions for solver - naive minimax
+    def minimaxOR(state, INFINITY):
+        if state.endOfGame():
+            return state.staticallyEvaluate() 
+        best = -INFINITY
+        for m in state.legalMoves():
+            state.play(m)
+            value = minimaxAND(state)
+            if value > best:
+                best = value
+            state.undoMove()
+        return best  
+    def minimaxAND(state):
+        if state.endOfGame():
+            return state.staticallyEvaluate() 
+        best = INFINITY
+        for m in state.legalMoves():
+            state.play(m)
+            value = minimaxOR(state)
+            if value < best:
+                best = value
+            state.undoMove()
+        return best    
     
     # TODO - edit function to incorporate stuff from number 3 - genmove color
     def genmove_cmd(self, args):
