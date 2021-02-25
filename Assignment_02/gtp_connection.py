@@ -287,7 +287,7 @@ class GtpConnection:
             signal.alarm(0)
             while True:
                 print("running")
-        except (Exception as e): 
+        except Exception as e:  
             self.respond('{}'.format(str(e)))
         
         
