@@ -42,7 +42,7 @@ class GtpConnection:
         self._debug_mode = debug_mode
         self.go_engine = go_engine
         self.board = board
-        signal.signal(signal.SIGALRM, runOut)
+        signal.signal(signal.SIGALRM, self.runOut)
         self.commands = {
             "protocol_version": self.protocol_version_cmd,
             "quit": self.quit_cmd,
