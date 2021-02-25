@@ -273,8 +273,9 @@ class GtpConnection:
     # If the winner is the opponent or unknown, then do not write any move in your GTP response.
     def solve_cmd(self, args):
         start = time.time()
-        while (timelimit <= start):
-            pass
+        while (timelimit+start >= start):
+            print("still running")
+        print("finished")
         
         # took from assignment 04 - does not work properly
         #try:
