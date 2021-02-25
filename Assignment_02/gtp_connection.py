@@ -281,10 +281,11 @@ class GtpConnection:
         
         try:
             with timeout(self.timelimit, exception=RuntimeError):
-                # perform a potentially very slow operation
+                # run our solver
                 pass
-        except RuntimeError:
-            print("didn't finish within 5 seconds")
+        except RuntimeError: # if it cannot run in the specified amount of time do this (play random move)
+            print("didn't finish within", self.timelimit, "seconds")
+            # play random available move
         
         # took from assignment 04 - does not work properly
         #try:
