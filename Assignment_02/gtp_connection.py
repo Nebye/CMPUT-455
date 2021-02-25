@@ -319,17 +319,20 @@ class GtpConnection:
             return
         if self.board.get_empty_points().size == 0:
             self.respond("pass")
-            return
+            return   
         board_color = args[0].lower()
         color = color_to_int(board_color)
         move = self.go_engine.get_move(self.board, color)
         move_coord = point_to_coord(move, self.board.size)
         move_as_string = format_point(move_coord)
-        if self.board.is_legal(move, color):
-            self.board.play_move(move, color)
-            self.respond(move_as_string.lower())
-        else:
-            self.respond("Illegal move: {}".format(move_as_string))
+        #if result == EMPTY:
+            #check = solve_cmd()
+            #if check == False and self.board.current_player is losing:
+                #if self.board.is_legal(move, color):
+                    #self.board.play_move(move, color)
+                    #self.respond(move_as_string.lower())    
+                #else:
+                    #self.respond("Illegal move: {}".format(move_as_string))
 
     def gogui_rules_game_id_cmd(self, args):
         self.respond("Gomoku")
