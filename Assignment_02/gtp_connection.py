@@ -42,6 +42,7 @@ class GtpConnection:
         self._debug_mode = debug_mode
         self.go_engine = go_engine
         self.board = board
+        self.INFINITY = 1000000
         signal.signal(signal.SIGALRM, self.runOut)
         self.commands = {
             "protocol_version": self.protocol_version_cmd,
@@ -308,28 +309,37 @@ class GtpConnection:
         
     
     # helper functions for solver - naive minimax
-    def minimaxOR(state, INFINITY):
-        if state.endOfGame():
-            return state.staticallyEvaluate() 
-        best = -INFINITY
-        for m in state.legalMoves():
-            state.play(m)
+    def minimaxOR(state):
+        #Check if the game is done
+        result = self.board.detect_five_in_a_row()
+        #If the game is done then return the result of the game
+        if result != EMPTY:
+            return result
+        best = -self.INFINITY
+        #Play each move to see if it results in a win
+        for m in legal_moves_cmd():
+            #No undo command, so save the state and return it to previous state after the move
+            saved_board = self.board
+            self.board.play_move(m, self.board.current_player)
             value = minimaxAND(state)
             if value > best:
                 best = value
-            state.undoMove()
+            self.board = saved_board
         return best 
     
+    #Be careful of time because of changes in board state
     def minimaxAND(state):
-        if state.endOfGame():
-            return state.staticallyEvaluate() 
-        best = INFINITY
-        for m in state.legalMoves():
-            state.play(m)
+        result = self.board.detect_five_in_a_row()
+        if result != EMPTY:
+            return result
+        best = self.INFINITY
+        for m in legal_moves_cmd():
+            saved_board = self.board
+            self.board.play_move(m, self.board.current_player)
             value = minimaxOR(state)
             if value < best:
                 best = value
-            state.undoMove()
+            self.board = saved_board
         return best    
     
     # TODO - edit function to incorporate stuff from number 3 - genmove color
