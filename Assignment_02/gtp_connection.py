@@ -313,7 +313,7 @@ class GtpConnection:
         #Check if the game is done
         result = self.board.detect_five_in_a_row()
         #If the game is done then return the result of the game
-        if result == BLACK or result == WHITE:
+        if result != EMPTY:
             return result
         best = -self.INFINITY
         #Play each move to see if it results in a win
@@ -330,7 +330,7 @@ class GtpConnection:
     #Be careful of time because of changes in board state
     def minimaxAND(state):
         result = self.board.detect_five_in_a_row()
-        if result == BLACK or result == WHITE:
+        if result != EMPTY:
             return result
         best = self.INFINITY
         for m in legal_moves_cmd():
