@@ -230,40 +230,6 @@ class GtpConnection:
             gtp_moves.append(format_point(coords))
         sorted_moves = " ".join(sorted(gtp_moves))
         self.respond(sorted_moves)
-    
-    # helper functions for solver - naive minimax 
-    def minimaxOR(state): 
-        #Check if the game is done
-        result = self.board.detect_five_in_a_row()
-        #If the game is done then return the result of the game
-        if result != EMPTY:
-            return result
-        best = -self.INFINITY
-        #Play each move to see if it results in a win
-        for m in legal_moves_cmd():
-            #No undo command, so save the state and return it to previous state after the move
-            saved_board = self.board
-            self.board.play_move(m, self.board.current_player)
-            value = minimaxAND(state)
-            if value > best:
-                best = value
-            self.board = saved_board
-        return best  
-    
-    #Be careful of time because of changes in board state
-    def minimaxAND(state):
-        result = self.board.detect_five_in_a_row()
-        if result != EMPTY:
-            return result
-        best = self.INFINITY
-        for m in legal_moves_cmd():
-            saved_board = self.board
-            self.board.play_move(m, self.board.current_player)
-            value = minimaxOR(state)
-            if value < best:
-                best = value
-            self.board = saved_board
-        return best       
         
     def play_cmd(self, args):
         """
@@ -346,7 +312,41 @@ class GtpConnection:
         #except(RuntimeError): # if it cannot run in the specified amount of time print unknown
             ## print("didn't finish within", self.timelimit, "seconds")
             #print("unknown")
-         
+        
+    
+    # helper functions for solver - naive minimax
+    def minimaxOR(self, state):
+        #Check if the game is done
+        result = self.board.detect_five_in_a_row()
+        #If the game is done then return the result of the game
+        if result != EMPTY:
+            return result
+        best = -self.INFINITY
+        #Play each move to see if it results in a win
+        for m in legal_moves_cmd():
+            #No undo command, so save the state and return it to previous state after the move
+            saved_board = self.board
+            self.board.play_move(m, self.board.current_player)
+            value = minimaxAND(state)
+            if value > best:
+                best = value
+            self.board = saved_board
+        return best 
+    
+    #Be careful of time because of changes in board state
+    def minimaxAND(self, state): 
+        result = self.board.detect_five_in_a_row()
+        if result != EMPTY:
+            return result
+        best = self.INFINITY
+        for m in legal_moves_cmd():
+            saved_board = self.board
+            self.board.play_move(m, self.board.current_player)
+            value = minimaxOR(state)
+            if value < best:
+                best = value
+            self.board = saved_board
+        return best    
     
     # TODO - edit function to incorporate stuff from number 3 - genmove color
     def genmove_cmd(self, args):
