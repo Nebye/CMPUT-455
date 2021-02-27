@@ -291,8 +291,11 @@ class GtpConnection:
             winner,move = self.board.solve()
             self.board = self.sboard
             signal.alarm(0)
-            while True:
-                print("running")
+            if move != "NoMove":
+                if move == None:
+                    self.respond('{} {}'.format(winner, self.board._point_to_coord(move)))
+                    return
+                self.respond('{}'.format(winner))
         except Exception as e:  
             self.respond('{}'.format(str(e)))
         
