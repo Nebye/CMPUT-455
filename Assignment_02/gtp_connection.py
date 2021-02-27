@@ -323,7 +323,7 @@ class GtpConnection:
             return result
         best = -self.INFINITY
         #Play each move to see if it results in a win
-        for m in legal_moves_cmd():
+        for m in range(legal_moves_cmd()):
             #No undo command, so save the state and return it to previous state after the move
             saved_board = self.board
             self.board.play_move(m, self.board.current_player)
@@ -339,7 +339,7 @@ class GtpConnection:
         if result != EMPTY:
             return result
         best = self.INFINITY
-        for m in legal_moves_cmd():
+        for m in range(legal_moves_cmd()):
             saved_board = self.board
             self.board.play_move(m, self.board.current_player)
             value = minimaxOR(state)
