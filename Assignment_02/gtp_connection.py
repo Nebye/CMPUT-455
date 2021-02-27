@@ -269,9 +269,9 @@ class GtpConnection:
     
     # If solve cannot run within timelimit - call this function
     def runOut(self, signam, frame):
-        #self.board = self.sboard
-        #raise Exception("unknown")        
-        print("unknown")
+        self.board = self.sboard
+        raise Exception("unknown")        
+        #print("unknown")
         
     # TODO - Solve - number 2
     # Compute the winner of the current position, assuming perfect play by both, within the current time limit.
@@ -291,6 +291,7 @@ class GtpConnection:
             winner,move = self.board.solve()
             self.board = self.sboard
             signal.alarm(0)
+            move = minimaxOR(self.sboard)
             if move != "NoMove":
                 if move == None:
                     self.respond('{} {}'.format(winner, self.board._point_to_coord(move)))
