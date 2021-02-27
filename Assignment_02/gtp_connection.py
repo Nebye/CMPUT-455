@@ -290,7 +290,7 @@ class GtpConnection:
             signal.alarm(int(self.timelimit))
             
             #winner,move = self.board.solve()
-            winner, move = minimaxOR(self.sboard)
+            winner, move = self.minimaxOR(self.sboard)
             
             self.board = self.sboard
             signal.alarm(0)
