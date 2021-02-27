@@ -290,8 +290,10 @@ class GtpConnection:
             signal.alarm(int(self.timelimit))
             
             #winner,move = self.board.solve()
-            winner, move = self.minimaxOR(self.sboard)
-            
+            result = self.board.detect_five_in_a_row() 
+            if (result != EMPTY): # check if game already won
+                winner, move = self.minimaxOR(self.sboard)
+                
             self.board = self.sboard
             signal.alarm(0)
             if move != "NoMove":
@@ -316,14 +318,11 @@ class GtpConnection:
     
     # helper functions for solver - naive minimax
     def minimaxOR(self, state):
-        #Check if the game is done
-        result = self.board.detect_five_in_a_row()
-        #If the game is done then return the result of the game
         if result != EMPTY:
             return result
         best = -self.INFINITY
         #Play each move to see if it results in a win
-        for m in range(legal_moves_cmd()):
+        for m in GoBoardUtil.generate_legal_moves_gomoku(self.board):
             #No undo command, so save the state and return it to previous state after the move
             saved_board = self.board
             self.board.play_move(m, self.board.current_player)
@@ -335,11 +334,8 @@ class GtpConnection:
     
     #Be careful of time because of changes in board state
     def minimaxAND(self, state): 
-        result = self.board.detect_five_in_a_row()
-        if result != EMPTY:
-            return result
         best = self.INFINITY
-        for m in range(legal_moves_cmd()):
+        for m in legal_moves_cmd():
             saved_board = self.board
             self.board.play_move(m, self.board.current_player)
             value = minimaxOR(state)
