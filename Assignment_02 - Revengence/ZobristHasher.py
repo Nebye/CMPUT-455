@@ -6,8 +6,8 @@ class ZobristHasher:
         self.zobristArray = []
         self.boardIndices = boardSize*boardSize
 
-        for _ in range(self.boardIndices):
-            self.zobristArray.append([random.getrandbits(64) for _ in range(3)])
+        for i in range(self.boardIndices):
+            self.zobristArray.append([random.getrandbits(64) for i in range(3)])
 
     def hash(self, board):
         hashCode = self.zobristArray[0][board[0]]

@@ -29,12 +29,11 @@ def get_counts(board, five_line):
 
 
 def evaluate(board, color):
-    lines = board.rows + board.cols
-    lines = lines + board.diags
-    points = 0
+    lines = board.rows + board.cols + board.diags
+    score = 0
 
     for line in lines:
         for x in range(len(line) - 5):
             counts = get_counts(board, line[x:x+5])
-            points = points + calc_score(counts, color)
-    return points
+            score = score + calc_score(counts, color)
+    return score
