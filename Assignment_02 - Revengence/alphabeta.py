@@ -1,8 +1,8 @@
-
 from board_util import GoBoardUtil
 INFINITY = 100000
 
-
+# Alphabeta Algorithm 
+# ammended from https://webdocs.cs.ualberta.ca/~c455/python/alphabeta.py
 def alphabeta(state, alpha, beta, tt, hasher):
     hashCode = hasher.hash(GoBoardUtil.get_oneD_board(state))
     result = tt.lookup(hashCode)
@@ -36,11 +36,11 @@ def alphabeta(state, alpha, beta, tt, hasher):
     return result
 
 
-# initial call with full window
+# init call
 def call_alphabeta(rootState, tt, hasher):
     return alphabeta(rootState, -INFINITY, INFINITY, tt, hasher)
 
-
+# store results
 def storeResult(tt, code, result):
     tt.store(code, result)
     return result

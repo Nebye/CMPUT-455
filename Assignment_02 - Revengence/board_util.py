@@ -4,6 +4,7 @@ Utility functions for Go board.
 """
 
 import numpy as np
+import random
 
 """
 Encoding of colors on and off a Go board.
