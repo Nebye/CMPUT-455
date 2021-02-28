@@ -24,7 +24,7 @@ from board_util import (
     MAXSIZE,
     GO_POINT
 )
-from score import access
+from evaluation import evaluate as access
 
 """
 The GoBoard class implements a board and basic functions to play
