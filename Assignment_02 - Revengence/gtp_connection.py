@@ -20,7 +20,7 @@ from board_util import (
 )
 import re
 import TranspositionTable
-import ZobristHasher
+import ZobristHasher # test
 
 
 class GtpConnection:
