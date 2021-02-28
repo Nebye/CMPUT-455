@@ -24,7 +24,7 @@ from board_util import (
     MAXSIZE,
     GO_POINT
 )
-from evaluation import evaluate as access
+from evaluation import evaluate
 
 """
 The GoBoard class implements a board and basic functions to play
@@ -159,7 +159,7 @@ class GoBoard(object):
 
     def _move_score(self, m):
         self.play_move(m, self.current_player)
-        score = -self.access()
+        score = -self.evaluate()
         self.undo_move(m)
         return score
 
@@ -212,7 +212,7 @@ class GoBoard(object):
             start = self.row_start(row)
             board[start : start + self.size] = EMPTY
 
-    def access(self):
+    def evaluate(self):
         win_color = self.detect_five_in_a_row()
         assert win_color != self.current_player
 
@@ -220,7 +220,7 @@ class GoBoard(object):
             return -10000000
 
         # Heuristic
-        return access(self, self.current_player)
+        return evaluate(self, self.current_player)
 
     def play_move(self, point, color):
         """
