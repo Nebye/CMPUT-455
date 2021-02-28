@@ -1,3 +1,6 @@
+from board_util import BLACK, WHITE, EMPTY
+import collections
+
 SCORE_MAP = [0, 1, 2, 5, 15, 1000000]
 
 
