@@ -46,8 +46,8 @@ class GtpConnection:
         
         self.hasher = ZobristHasher.ZobristHasher(self.board.size)
         self.transpositionTable = TranspositionTable.TranspositionTable()
-        self.oldBoardSize = self.board.size
         self.time_limit = 1
+        self.oldBoardSize = self.board.size
 
         self.commands = {
             "protocol_version": self.protocol_version_cmd,
