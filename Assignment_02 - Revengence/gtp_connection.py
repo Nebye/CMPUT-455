@@ -39,8 +39,8 @@ class GtpConnection:
         self.go_engine = go_engine
         self.board = board
         self.time_limit = 30
-        self.hasher = ZobristHasher(self.board.size)
-        self.transpositionTable = TranspositionTable()
+        self.hasher = ZobristHasher.ZobristHasher(self.board.size)
+        self.transpositionTable = TranspositionTable.TranspositionTable()
         self.oldBoardSize = self.board.size
 
         self.commands = {
