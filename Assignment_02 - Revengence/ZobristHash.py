@@ -1,3 +1,6 @@
+import random
+
+
 def __init__(self, boardSize):
     self.zobristArray = []
     self.boardIndices = boardSize*boardSize
@@ -11,13 +14,10 @@ def hash(self, board):
     # takes in board as a 1D array
     # board inputted would have a value 0 for a certain move (example empty), 1 for a certain move 
     # (example black), etc, as long as the numbering is consistent it will work.
-    
+
     hashCode = self.zobristArray[0][board[0]]
-    
+
     for i in range(1,self.boardIndices):
         hashCode = hashCode ^ self.zobristArray[i][board[i]]
-    
+
     return hashCode
-
-
-
