@@ -1,7 +1,7 @@
 from board_util import BLACK, WHITE, EMPTY
 import collections
 
-SCORE_MAP = [0, 1, 2, 5, 15, 1000000]
+value_coor = [0, 1, 2, 5, 15, 1000000]
 
 
 def calc_score(counts, color):
@@ -14,7 +14,7 @@ def calc_score(counts, color):
     if my_count >= 1 and opp_count >= 1:
         return 0
 
-    return SCORE_MAP[my_count] - SCORE_MAP[opp_count]
+    return value_coor[my_count] - value_coor[opp_count]
 
 
 def get_counts(board, five_line):
