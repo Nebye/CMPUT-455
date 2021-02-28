@@ -16,7 +16,9 @@ def calc_score(counts, color):
 
 
 def get_counts(board, five_line):
-    b_count, w_count, e_count = 0
+    b_count = 0
+    w_count = 0
+    e_count = 0
 
     for p in five_line:
         stone = board.board[p]
