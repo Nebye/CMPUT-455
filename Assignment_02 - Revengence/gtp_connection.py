@@ -25,7 +25,7 @@ import time
 # from pydispatch import dispatcher # just in case signal doesn't work - (http://pydispatcher.sourceforge.net/)
 import re # regex
 
-import transpositiontable
+import TranspositionTable
 import ZobristHash
 
 
@@ -46,7 +46,7 @@ class GtpConnection:
         self.board = board
         
         self.hasher = ZobristHash(self.board.size)
-        self.transpositionTable = transpositiontable()
+        self.TransTable = TranspositionTable()
         self.oldBoardSize = self.board.size
         self.time_limit = 1
 
@@ -202,7 +202,7 @@ class GtpConnection:
         self.reset(int(args[0]))
         if self.board.size != self.oldBoardSize:
             self.hasher = ZobristHash(self.board.size)
-            self.transpositionTable = transpositiontable()
+            self.TransTable = TranspositionTable()
             
         self.oldBoardSize = self.board.size
         self.respond()
@@ -292,7 +292,7 @@ class GtpConnection:
     # If there are several best moves, then write any one of them.
     # If the winner is the opponent or unknown, then do not write any move in your GTP response.        
     def solve_cmd(self, args):
-        outcome, move = self.go_engine.solve(self.board, self.time_limit, self.transpositionTable, self.hasher)
+        outcome, move = self.go_engine.solve(self.board, self.time_limit, self.TransTable, self.hasher)
 
         if move is None:
             self.respond("{}".format(outcome))
@@ -314,7 +314,7 @@ class GtpConnection:
             return
         board_color = args[0].lower()
         color = color_to_int(board_color)
-        move = self.go_engine.get_move(self.board, color, self.time_limit, self.transpositionTable, self.hasher)
+        move = self.go_engine.get_move(self.board, color, self.time_limit, self.TransTable, self.hasher)
         move_coord = point_to_coord(move, self.board.size)
         move_as_string = format_point(move_coord)
         if self.board.is_legal(move, color):
