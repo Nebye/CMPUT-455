@@ -5,28 +5,24 @@ value_coor = [0, 1, 2, 5, 15, 1000000]
 
 
 def calc_score(counts, color):
-    if color == BLACK:
+    if (color == BLACK):
         my_count, opp_count, open_count = counts
     else:
         opp_count, my_count, open_count = counts
-
-    # Is blocked
-    if my_count >= 1 and opp_count >= 1:
+    if (opp_count >= 1 and my_count >= 1):
         return 0
 
     return value_coor[my_count] - value_coor[opp_count]
 
 
 def get_counts(board, five_line):
-    b_count = 0
-    w_count = 0
-    e_count = 0
+    b_count, w_count, e_count = 0
 
-    for p in five_line:
-        stone = board.board[p]
-        if stone == BLACK:
+    for i in five_line:
+        stone = board.board[i]
+        if (stone == BLACK):
             b_count += 1
-        elif stone == WHITE:
+        elif (stone == WHITE):
             w_count += 1
         else:
             e_count += 1
@@ -35,12 +31,12 @@ def get_counts(board, five_line):
 
 
 def evaluate(board, color):
-    score = 0
     lines = board.rows + board.cols + board.diags
+    ePoints = 0
 
     for line in lines:
         for i in range(len(line) - 5):
             counts = get_counts(board, line[i:i+5])
-            score += calc_score(counts, color)
+            ePoints += calc_score(counts, color)
 
-    return score
+    return ePoints
