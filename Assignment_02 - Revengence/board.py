@@ -1,15 +1,5 @@
-"""
-board.py
-
-Implements a basic Go board with functions to:
-- initialize to a given board size
-- check if a move is legal
-- play a move
-
-The board uses a 1-dimensional representation with padding
-"""
-
 import numpy as np
+
 from board_util import (
     GoBoardUtil,
     BLACK,
@@ -24,6 +14,7 @@ from board_util import (
     MAXSIZE,
     GO_POINT
 )
+
 from evaluation import evaluate
 
 """
@@ -31,7 +22,6 @@ The GoBoard class implements a board and basic functions to play
 moves, check the end of the game, and count the acore at the end.
 The class also contains basic utility functions for writing a Go player.
 For many more utility functions, see the GoBoardUtil class in board_util.py.
-
 The board is stored as a one-dimensional array of GO_POINT in self.board.
 See GoBoardUtil.coord_to_point for explanations of the array encoding.
 """
@@ -74,7 +64,6 @@ class GoBoard(object):
     def calculate_rows_cols_diags(self):
         if self.size < 5:
             return
-        # precalculate all rows, cols, and diags for 5-in-a-row detection
         self.rows = []
         self.cols = []
         for i in range(1, self.size + 1):
@@ -91,7 +80,8 @@ class GoBoard(object):
             self.cols.append(current_col)
         
         self.diags = []
-        # diag towards SE, starting from first row (1,1) moving right to (1,n)
+        # appended from personal old connect 5 script
+        # diag SE 
         start = self.row_start(1)
         for i in range(start, start + self.size):
             diag_SE = []
@@ -101,7 +91,7 @@ class GoBoard(object):
                 pt += self.NS + 1
             if len(diag_SE) >= 5:
                 self.diags.append(diag_SE)
-        # diag towards SE and NE, starting from (2,1) downwards to (n,1)
+        # diag SE NE
         for i in range(start + self.NS, self.row_start(self.size) + 1, self.NS):
             diag_SE = []
             diag_NE = []
@@ -117,7 +107,7 @@ class GoBoard(object):
                 self.diags.append(diag_SE)
             if len(diag_NE) >= 5:
                 self.diags.append(diag_NE)
-        # diag towards NE, starting from (n,2) moving right to (n,n)
+        # diag NE
         start = self.row_start(self.size) + 1
         for i in range(start, start + self.size):
             diag_NE = []
@@ -237,27 +227,7 @@ class GoBoard(object):
             return True
         elif self.board[point] != EMPTY:
             return False
-        # if point == self.ko_recapture:
-        #     return False
-
-        # General case: deal with captures, suicide, and next ko point
-        # opp_color = GoBoardUtil.opponent(color)
-        # in_enemy_eye = self._is_surrounded(point, opp_color)
         self.board[point] = color
-        # single_captures = []
-        # neighbors = self._neighbors(point)
-        # for nb in neighbors:
-        #     if self.board[nb] == opp_color:
-        #         single_capture = self._detect_and_process_capture(nb)
-        #         if single_capture != None:
-        #             single_captures.append(single_capture)
-        # block = self._block_of(point)
-        # if not self._has_liberty(block):  # undo suicide move
-        #     self.board[point] = EMPTY
-        #     return False
-        # self.ko_recapture = None
-        # if in_enemy_eye and len(single_captures) == 1:
-        #     self.ko_recapture = single_captures[0]
         self.current_player = GoBoardUtil.opponent(color)
         self.last2_move = self.last_move
         self.last_move = point
