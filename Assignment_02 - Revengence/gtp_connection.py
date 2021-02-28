@@ -18,9 +18,14 @@ from board_util import (
     MAXSIZE,
     coord_to_point,
 )
+import time
+# from interruptingcow import timeout
+# import signal
+# from pydispatch import dispatcher # just in case signal doesn't work - (http://pydispatcher.sourceforge.net/)
+
 import re
 import TranspositionTable
-import ZobristHasher # test
+import ZobristHasher
 
 
 class GtpConnection:
@@ -38,10 +43,11 @@ class GtpConnection:
         self._debug_mode = debug_mode
         self.go_engine = go_engine
         self.board = board
-        self.time_limit = 30
+        
         self.hasher = ZobristHasher.ZobristHasher(self.board.size)
         self.transpositionTable = TranspositionTable.TranspositionTable()
         self.oldBoardSize = self.board.size
+        self.time_limit = 1
 
         self.commands = {
             "protocol_version": self.protocol_version_cmd,
@@ -57,15 +63,16 @@ class GtpConnection:
             "list_commands": self.list_commands_cmd,
             "play": self.play_cmd,
             "legal_moves": self.legal_moves_cmd,
-            "timelimit": self.time_limit_cmd,
-            "solve": self.solve_cmd,
             "gogui-rules_game_id": self.gogui_rules_game_id_cmd,
             "gogui-rules_board_size": self.gogui_rules_board_size_cmd,
             "gogui-rules_legal_moves": self.gogui_rules_legal_moves_cmd,
             "gogui-rules_side_to_move": self.gogui_rules_side_to_move_cmd,
             "gogui-rules_board": self.gogui_rules_board_cmd,
             "gogui-rules_final_result": self.gogui_rules_final_result_cmd,
-            "gogui-analyze_commands": self.gogui_analyze_cmd
+            "gogui-analyze_commands": self.gogui_analyze_cmd,
+            
+            "timelimit": self.time_limit_cmd,
+            "solve": self.solve_cmd            
         }
 
         # used for argument checking
@@ -78,19 +85,10 @@ class GtpConnection:
             "genmove": (1, "Usage: genmove {w,b}"),
             "play": (2, "Usage: play {b,w} MOVE"),
             "legal_moves": (1, "Usage: legal_moves {w,b}"),
-            "timelimit": (1, 'Usage: set time limit as an integer'),
-            "solve": (0, 'No arguments necessary for solve')
+            
+            "timelimit": (1, 'Usage: Set time limit as int'),
+            "solve": (0, 'No args for solve')
         }
-
-    def solve_cmd(self, args):
-        outcome, move = self.go_engine.solve(self.board, self.time_limit, self.transpositionTable, self.hasher)
-
-        if move is None:
-            self.respond("{}".format(outcome))
-        else:
-            move = format_point(point_to_coord(move, self.board.size))
-            self.respond("{} {}".format(outcome, move))
-
     def write(self, data):
         stdout.write(data)
 
@@ -243,13 +241,7 @@ class GtpConnection:
             gtp_moves.append(format_point(coords))
         sorted_moves = " ".join(sorted(gtp_moves))
         self.respond(sorted_moves)
-
-    def time_limit_cmd(self, args):
-        assert 1 <= int(args[0]) <= 100
-        limit = int(args[0])
-        self.time_limit = limit
-        self.respond()
-        
+     
     def play_cmd(self, args):
         """
         play a move args[1] for given color args[0] in {'b','w'}
@@ -280,6 +272,67 @@ class GtpConnection:
         except Exception as e:
             self.respond("illegal move: {}".format(str(e).replace('\'','')))
     
+    # TODO - Timelimit - number 1
+    def time_limit_cmd(self, args):
+        assert 1 <= int(args[0]) <= 100
+        limit = int(args[0])
+        self.time_limit = limit
+        self.respond()
+        #self.timelimit = args[0]
+        #self.respond('')         
+   
+    # TODO - Solve - number 2
+    # Compute the winner of the current position, assuming perfect play by both, within the current time limit.
+    # Winner is either b, w, draw, or unknown. 
+    # Write unknown if your solver cannot solve the game within the current time limit.
+    # Solving always starts with the current player (toPlay) going first.
+    # If the winner is toPlay or if its a draw, then also write a move that you found that achieves this best possible result.
+    # If there are several best moves, then write any one of them.
+    # If the winner is the opponent or unknown, then do not write any move in your GTP response.        
+    def solve_cmd(self, args):
+        result, move = self.go_engine.solve(self.board, self.time_limit, self.transpositionTable, self.hasher)
+        if move is None:
+            self.respond("{}".format(result))
+        else:
+            move = format_point(point_to_coord(move, self.board.size))
+            self.respond("{} {}".format(result, move))     
+       
+       
+       
+        ''' Old code - unused
+         # I don't think this works but gonna test it out anyway
+                 # Idk, if this doesn't work, I'm calling it a night
+         #try:
+             #self.sboard = self.board.copy()
+             #signal.alarm(int(self.timelimit))
+             
+             ##winner,move = self.board.solve()
+             #result = self.board.detect_five_in_a_row() 
+             #if (result != EMPTY): # check if game already won
+                 #winner, move = self.minimaxOR(self.sboard)
+                 
+             #self.board = self.sboard
+             #signal.alarm(0)
+             #if move != "NoMove":
+                 #if move == None:
+                     #self.respond('{} {}'.format(winner, self.board._point_to_coord(move)))
+                     #return
+                 #self.respond('{}'.format(winner))
+         #except Exception as e:  
+             #self.respond('{}'.format(str(e)))
+         
+         
+         ## aparently fun manual pip packages are no bueno
+         ##try:
+             ##with timeout(float(self.timelimit), exception=RuntimeError):
+                 ### replace while loop with our solver
+                 ##while True:
+                     ##print("running")
+         ##except(RuntimeError): # if it cannot run in the specified amount of time print unknown
+             ### print("didn't finish within", self.timelimit, "seconds")
+             ##print("unknown")     '''       
+         
+    # TODO - edit function to incorporate stuff from number 3 - genmove color
     def genmove_cmd(self, args):
         """
         Generate a move for the color args[0] in {'b', 'w'}, for the game of gomoku.
@@ -301,6 +354,15 @@ class GtpConnection:
             self.respond(move_as_string)
         else:
             self.respond("Illegal move: {}".format(move_as_string))
+        
+        #if result == EMPTY:
+        #check = solve_cmd()
+        #if check == False and self.board.current_player is losing:
+        #if self.board.is_legal(move, color):
+        #self.board.play_move(move, color)
+        #self.respond(move_as_string.lower())    
+        #else:
+        #self.respond("Illegal move: {}".format(move_as_string))        
 
     def gogui_rules_game_id_cmd(self, args):
         self.respond("Gomoku")
