@@ -17,7 +17,7 @@ def hash(self, board):
 
     hashCode = self.zobristArray[0][board[0]]
 
-    for i in range(1,self.boardIndices):
+    for i in range(1, self.boardIndices):
         hashCode = hashCode ^ self.zobristArray[i][board[i]]
 
     return hashCode

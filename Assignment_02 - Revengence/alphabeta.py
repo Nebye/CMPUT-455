@@ -36,11 +36,12 @@ def alphabeta(state, alpha, beta, tt, hasher):
     return result
 
 
-# initial call with full window
+# init call alphabeta
+# TODO
 def call_alphabeta(rootState, tt, hasher):
     return alphabeta(rootState, -INFINITY, INFINITY, tt, hasher)
 
-
+# TODO
 def storeResult(tt, code, result):
     tt.store(code, result)
     return result
