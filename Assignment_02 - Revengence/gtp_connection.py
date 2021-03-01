@@ -24,8 +24,7 @@ import time
 # from pydispatch import dispatcher # just in case signal doesn't work - (http://pydispatcher.sourceforge.net/)
 
 import re
-import TranspositionTable
-import ZobristHasher
+from TransTable import TranspositionTable, ZobristHasher
 
 
 class GtpConnection:
@@ -44,8 +43,8 @@ class GtpConnection:
         self.go_engine = go_engine
         self.board = board
         
-        self.hasher = ZobristHasher.ZobristHasher(self.board.size)
-        self.transpositionTable = TranspositionTable.TranspositionTable()
+        self.hasher = ZobristHasher(self.board.size)
+        self.transpositionTable = TranspositionTable()
         self.time_limit = 1
         self.oldBoardSize = self.board.size
 
