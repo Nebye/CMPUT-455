@@ -24,7 +24,7 @@ import time
 # from pydispatch import dispatcher # just in case signal doesn't work - (http://pydispatcher.sourceforge.net/)
 
 import re
-from TransTable import TranspositionTable, ZobristHasher
+from TransTabs import TranspositionTable, ZobristHasher
 
 
 class GtpConnection:
