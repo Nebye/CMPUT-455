@@ -197,7 +197,9 @@ class GtpConnection:
         Reset the game with new boardsize args[0]
         """
         self.reset(int(args[0]))
-        if self.board.size != self.oldBoardSize:
+
+	# boardsize fix for our transtable implementation
+        if (self.board.size != self.oldBoardSize):
             self.hasher = ZobristHasher(self.board.size)
             self.transpositionTable = TranspositionTable()
             
