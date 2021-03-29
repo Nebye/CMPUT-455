@@ -41,13 +41,7 @@ class GoBoard(object):
         """
         assert 5 <= size <= MAXSIZE
         self.reset(size)
-
-    def calculate_rows_cols_diags(self):
-        if self.size < 5:
-            return
-        # precalculate all rows, cols, and diags for 5-in-a-row detection
-        self.rows = []
-        self.cols = []
+        #self.calculate_rows_cols_diags()
 
     def calculate_rows_cols_diags(self):
         if self.size < 5:
@@ -124,8 +118,11 @@ class GoBoard(object):
         self.board = np.full(self.maxpoint, BORDER, dtype=GO_POINT)
         self._initialize_empty_points(self.board)
         self.calculate_rows_cols_diags()
+        
+        # THIS IS NEW
         self.boardLines5 = self.generate_lines(5)
         self.boardLines6 = self.generate_lines(6)
+        # BACK TO OLD
 
 
     def copy(self):
@@ -136,8 +133,12 @@ class GoBoard(object):
         b.last_move = self.last_move
         b.last2_move = self.last2_move
         b.current_player = self.current_player
+        
+        # THIS IS NEW
         b.boardLines5 = self.boardLines5
         b.boardLines6 = self.boardLines6
+        # BACK TO OLD
+        
         assert b.maxpoint == self.maxpoint
         b.board = np.copy(self.board)
         return b
@@ -209,9 +210,12 @@ class GoBoard(object):
         self.last_move = point
         return True
 
+    # THIS IS NEW
     def undo_move(self, move):
+        # Undo last move - used as helper for others
         self.board[move] = EMPTY
         self.current_player = GoBoardUtil.opponent(self.current_player)
+    # BACK TO OLD
 
     def last_board_moves(self):
         """
@@ -261,6 +265,7 @@ class GoBoard(object):
                 return prev
         return EMPTY
 
+    # THIS IS NEW -- EVERYTHING PAST THIS POINT
     # compute upon new board size
     def generate_lines(self, length):
         boardLines = []
