@@ -119,10 +119,9 @@ class GoBoard(object):
         self._initialize_empty_points(self.board)
         self.calculate_rows_cols_diags()
         
-        # THIS IS NEW
+        # Cuts our board accordingly
         self.boardLines5 = self.generate_lines(5)
         self.boardLines6 = self.generate_lines(6)
-        # BACK TO OLD
 
 
     def copy(self):
@@ -134,10 +133,9 @@ class GoBoard(object):
         b.last2_move = self.last2_move
         b.current_player = self.current_player
         
-        # THIS IS NEW
+        # Cuts our board accordingly
         b.boardLines5 = self.boardLines5
         b.boardLines6 = self.boardLines6
-        # BACK TO OLD
         
         assert b.maxpoint == self.maxpoint
         b.board = np.copy(self.board)
@@ -210,12 +208,10 @@ class GoBoard(object):
         self.last_move = point
         return True
 
-    # THIS IS NEW
     def undo_move(self, move):
-        # Undo last move - used as helper for others
+        # Undo last move - used as helper for others from last asn
         self.board[move] = EMPTY
         self.current_player = GoBoardUtil.opponent(self.current_player)
-    # BACK TO OLD
 
     def last_board_moves(self):
         """
@@ -265,100 +261,95 @@ class GoBoard(object):
                 return prev
         return EMPTY
 
-    # THIS IS NEW -- EVERYTHING PAST THIS POINT
-    # compute upon new board size
-    def generate_lines(self, length):
-        boardLines = []
-        size = self.size
-        for p in range(size * size):
+    # Our own computation when new board size spawned 
+    def generate_lines(self, len):
+        boardCut = []
+        size = self.size # since it's a square no need to get width and height separately
+        for i in range(size * size): 
             pointLines = \
-                self.horizontal_lines(p, length) + \
-                self.vertical_lines(p, length) + \
-                self.diag_lines(p, size + 1, length) + \
-                self.diag_lines(p, size - 1, length)
-            boardLines.append(pointLines)
-        return boardLines
+                self.horizontal_lines(i, len) + \
+                self.vertical_lines(i, len) + \
+                self.diag_lines(i, size + 1, len) + \
+                self.diag_lines(i, size - 1, len)
+            boardCut.append(pointLines)
+        return boardCut
 
-    def horizontal_lines(self, pt, length):
-        lines = []
-        size = self.size
-        start = max(pt - (length - 1), pt - (pt % size))
-        end = min(pt + (length - 1), size * (pt // size + 1) - 1)
-
-        for i in range(end - start - (length - 2)):
-            lines.append(list(map(self.padded_point, range(start + i, start + i + length))))
-
-        return lines
-
-    def vertical_lines(self, pt, length):
-        lines = []
-        size = self.size    
-        start = max(pt - ((length - 1) * size), pt % size)
-        end = min(pt + ((length - 1) * size), (size - 1) * size + (pt % size))
-
-        for i in range(start, end - ((length - 1) * size) + 1, size):
-            lines.append(list(map(self.padded_point, range(i, i + ((length - 1) * size) + 1, size))))
-
-        return lines
-
-    def diag_lines(self, pt, dir, length):
+    def diag_lines(self, pt, dir, len):
         lines = []
         size = self.size
         row = pt // size
         col = pt % size
 
-        if dir == size - 1:
-            maxBackwardDist = min(row, size - col - 1, length - 1)
-            maxForwardDist = min(size - row - 1, col, length - 1)
+        if (dir == size - 1):
+            maxForwardDist = min(size - row - 1, col, len - 1)
+            maxBackwardDist = min(row, size - col - 1, len - 1)
         else:
-            maxBackwardDist = min(row, col, length - 1)
-            maxForwardDist = min(size - row - 1, size - col - 1, length - 1)
+            maxForwardDist = min(size - row - 1, size - col - 1, len - 1)
+            maxBackwardDist = min(row, col, len - 1)
 
-        start = pt - maxBackwardDist * dir
+        beg = pt - maxBackwardDist * dir
         end = pt + maxForwardDist * dir
 
-        for i in range(start, end - ((length - 1) * dir) + 1, dir):
-            lines.append(list(map(self.padded_point, range(i, i + ((length - 1) * dir) + 1, dir))))
+        for i in range(beg, end - ((len - 1) * dir) + 1, dir):
+            lines.append(list(map(self.padded_point, range(i, i + ((len - 1) * dir) + 1, dir))))
 
         return lines
-
-    def padded_point(self, pt):
-        # convert point in board to padded board point
+    
+    def horizontal_lines(self, pt, len):
+        lines = []
         size = self.size
-        row = (pt // size) + 1
-        col = (pt % size) + 1
-        return row * (size + 1) + col
+        beg = max(pt - (len - 1), pt - (pt % size))
+        end = min(pt + (len - 1), size * (pt // size + 1) - 1)
+
+        for i in range(end - beg - (len - 2)):
+            lines.append(list(map(self.padded_point, range(beg + i, beg + i + len))))
+
+        return lines
+    
+    def vertical_lines(self, pt, len):
+        lines = []
+        size = self.size    
+        beg = max(pt - ((len - 1) * size), pt % size)
+        end = min(pt + ((len - 1) * size), (size - 1) * size + (pt % size))
+
+        for i in range(beg, end - ((len - 1) * size) + 1, size):
+            lines.append(list(map(self.padded_point, range(i, i + ((len - 1) * size) + 1, size))))
+
+        return lines    
 
     def unpadded_point(self, pt):
         size = self.size
         row = pt // (size + 1) - 1
         col = pt % (size + 1) - 1
-        return row * size + col
+        return (row * size + col)
+
+    def padded_point(self, pt):
+        size = self.size
+        row = (pt // size) + 1
+        col = (pt % size) + 1
+        return (row * (size + 1) + col)
 
     def check_win(self, move):
         newPoint = self.unpadded_point(move)
         lines = self.boardLines5[newPoint]
         for line in lines:
             b_count, w_count, e_count = self.get_counts(line)
-            if b_count == 5:
+            if (b_count == 5):
                 return BLACK
-            elif w_count == 5:
+            elif (w_count == 5):
                 return WHITE
             else:
                 return EMPTY
 
     def get_counts(self, line):
-        b_count = 0
-        w_count = 0
-        e_count = 0
-
-        for p in line:
-            stone = self.board[p]
-            if stone == BLACK:
-                b_count += 1
-            elif stone == WHITE:
-                w_count += 1
+        b_count = w_count = e_count = 0
+        for i in line:
+            stone = self.board[i]
+            if (stone == BLACK):
+                b_count = b_count + 1
+            elif (stone == WHITE):
+                w_count = w_count + 1
             else:
-                e_count += 1
+                e_count = e_count + 1
 
         return b_count, w_count, e_count
