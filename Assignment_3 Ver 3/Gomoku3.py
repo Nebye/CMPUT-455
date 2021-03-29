@@ -29,114 +29,81 @@ class Gomoku():
         version : float
             version number (used by the GTP interface).
         """
+        self.simu = 10
         self.name = "GomokuAssignment3"
         self.version = 1.0
-        self.numSimulations = 10
 
     def get_move(self, board, color):
-        # generate a move using one-ply MC simulations
-        emptyPoints = board.get_empty_points()
-
-        # no more moves to pick from, so will pass
-        if emptyPoints == []:
+        moveWinCount = []
+        emptyPts = board.get_empty_points()
+        #if there are no moves to pick from then pass
+        if emptyPts.size == 0:
             return None
 
-        # number of times the move has won
-        numMoveWins = []
-        bestMoves = self.rule_based_moves(board, color)
-        for _, move in bestMoves:
-            wins = self.simulate_move(board, move, color)
-            numMoveWins.append(wins)
-
-        # select the best move
-        max_child = np.argmax(numMoveWins)
-        return bestMoves[max_child][1]
-
-    def simulate_move(self, board, move, color):
-        wins = 0
-        for _ in range(self.numSimulations):
-            # simulate the move numSimulations times
-            result = self.simulate(board, move, color)
-
-            if result == color:
-                wins += 1
-        return wins
+        #how many times the move has won
+        best = self.rule_based_moves(board, color)
+        for number, move in best:
+            winCount = self.sim_move(board, move, color)
+            moveWinCount.append(winCount)
+        #choose best 
+        max_ = np.argmax(moveWinCount)
+        return best[max_][1]
 
     def simulate(self, board, move, color):
-        boardCopy = board.copy()
-        boardCopy.play_move(move, color)
-        # return the color if they won
-        # if board.check_win(move) == color:
-        #     return color
-        # first player played move, now opponent plays
-        opponent = GoBoardUtil.opponent(color)
+        passCounter = 0
+        board = board.copy()
+        board.play_move(move, color)        
         
-        passes = 0
-        winningColor = EMPTY
+        #sim entire game
+        while board.get_empty_points().size > 0:
+            color = board.current_player
+            best = self.rule_based_moves(board, color)
+            score, move = random.choice(best)
 
-        # simulate entire game to completion
-        while boardCopy.get_empty_points() != []:
-            color = boardCopy.current_player
-            bestMoves = self.rule_based_moves(boardCopy, color)
-
-            moveScore, move = random.choice(bestMoves)
-
-            # return color if they won
-            if moveScore == WIN:
+            #return winner color
+            if score == WIN:
                 return color
-            
-            boardCopy.play_move(move, color)
+
+            board.play_move(move, color)
+            #If move is equal is to passCounter then increment by 1
+            #if passCounter is greater than 1
+            #else reset passCounter
             if move == PASS:
-                passes += 1
-            else:
-                passes = 0 # reset number of consecutive passes
-            if passes >= 2:
+                passCounter = passCounter + 1  
+            elif passCounter > 1:
                 break
+            else:
+                passCounter = 0           
 
-        # return the winning colour
-        return winningColor
-
-    # def rule_based_move(self, board, color):
-    #     """
-    #     returns best move for color
-    #     """
-    #     bestMove = None
-    #     bestMoveScore = RANDOM
-
-    #     all_moves = self.rule_based_moves(board, color)
-    #     for _, move in all_moves:
-    #         moveScore = self.check_move(board, color, move)
-    #         if moveScore == WIN:
-    #             return move, WIN
-    #         if moveScore > bestMoveScore:
-    #             bestMove = move
-    #             bestMoveScore = moveScore
-
-    #     if bestMove is None:
-    #         return GoBoardUtil.generate_random_move(board, color), bestMoveScore
-    #     else:
-    #         return bestMove, bestMoveScore
+    
+    def sim_move(self, board, move, color):
+        winCount = 0
+        #self.simu = 10
+        #simulate move self.simu times        
+        for number in range(self.simu):
+            counter = self.simulate(board, move, color)
+            if counter == color:
+                winCount = winCount + 1   
+        return winCount    
 
     def rule_based_moves(self, board, color):
-        moveResults = []
-
+        results = []
+        best = []
+        bestScore = RANDOM
+        
         for move in board.get_empty_points():
-            moveScore = self.check_move(board, color, move)
-            moveResults.append((moveScore, move))
+            score = self.check_move(board, color, move)
+            results.append((score, move))
+        results.sort(reverse = True, key = lambda x: x[0])
 
-        moveResults.sort(reverse = True, key = lambda x: x[0])
-
-        # get best moves
-        bestMoves = []
-        bestMoveScore = RANDOM
-        for move in moveResults:
-            if move[0] > bestMoveScore:
-                bestMoveScore = move[0]
-            if move[0] < bestMoveScore:
+        #Best move
+        for move in results:
+            if move[0] > bestScore:
+                bestScore = move[0]
+            elif move[0] < bestScore:
                 break
-            bestMoves.append(move)
-
-        return bestMoves
+            best.append(move)
+        return best
 
     def check_move(self, board, color, move):
         """
@@ -147,27 +114,27 @@ class Gomoku():
             1 if block open four
             0 otherwise (random)
         """
-
         board.play_move(move, color)
-
         newPoint = board.unpadded_point(move)
         lines5 = board.boardLines5[newPoint]
-        maxScore = RANDOM
+        maxScore = RANDOM        
+        lines6 = board.boardLines6[newPoint]
+        oppColor = GoBoardUtil.opponent(color)        
+
+        
         for line in lines5:
             counts = board.get_counts(line)
             if color == BLACK:
                 myCount, oppCount, openCount = counts
             else:
                 oppCount, myCount, openCount = counts
-
+    
             if myCount == 5:
                 board.undo_move(move)
                 return WIN
             elif oppCount == 4 and myCount == 1:
-                maxScore = max(BLOCK_WIN, maxScore)
+                maxScore = max(BLOCK_WIN, maxScore)          
 
-        lines6 = board.boardLines6[newPoint]
-        oppColor = GoBoardUtil.opponent(color)
         for line in lines6:
             counts = board.get_counts(line)
             if color == BLACK:
