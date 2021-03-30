@@ -319,10 +319,10 @@ class GtpConnection:
             output_str = "Win"
         elif (bestMoveScore == WIN_BLOCK):
             output_str = "BlockWin"
+        elif (bestMoveScore == BLOCK_FOUR_OPEN):
+            output_str = "BlockOpenFour"        
         elif (bestMoveScore == FOUR_OPEN):
             output_str = "OpenFour"
-        elif (bestMoveScore == BLOCK_FOUR_OPEN):
-            output_str = "BlockOpenFour"
         else: 
             output_str = "Random"
 
