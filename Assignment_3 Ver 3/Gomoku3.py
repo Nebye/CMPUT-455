@@ -1,5 +1,7 @@
 #!/usr/local/bin/python3
+
 # /usr/bin/python3
+
 # Set the path to your python3 above
 
 from gtp_connection import GtpConnection
@@ -7,8 +9,8 @@ from board_util import GoBoardUtil, PASS, EMPTY, BLACK, WHITE
 from board import GoBoard
 import random
 import numpy as np
-
 import cProfile
+
 
 WIN = 4
 BLOCK_WIN = 3
@@ -17,11 +19,11 @@ BLOCK_OPEN_FOUR = 1
 RANDOM = 0
 
 class Gomoku():
+
     def __init__(self):
         """
         Gomoku player that selects moves randomly from the set of legal moves.
         Passes/resigns only at the end of the game.
-
         Parameters
         ----------
         name : str
@@ -37,7 +39,7 @@ class Gomoku():
         moveWinCount = []
         emptyPts = board.get_empty_points()
         #if there are no moves to pick from then pass
-        if emptyPts.size == 0:
+        if (emptyPts.size == 0):
             return None
 
         #how many times the move has won
@@ -49,11 +51,12 @@ class Gomoku():
         max_ = np.argmax(moveWinCount)
         return best[max_][1]
 
+
     def simulate(self, board, move, color):
         passCounter = 0
         board = board.copy()
         board.play_move(move, color)        
-        
+
         #sim entire game
         while board.get_empty_points().size > 0:
             color = board.current_player
@@ -61,28 +64,28 @@ class Gomoku():
             score, move = random.choice(best)
 
             #return winner color
-            if score == WIN:
+            if (score == WIN):
                 return color
 
             board.play_move(move, color)
             #If move is equal is to passCounter then increment by 1
             #if passCounter is greater than 1
             #else reset passCounter
-            if move == PASS:
+            if (move == PASS):
                 passCounter = passCounter + 1  
-            elif passCounter > 1:
+            elif (passCounter > 1):
                 break
             else:
                 passCounter = 0           
 
-    
+
     def sim_move(self, board, move, color):
         winCount = 0
         #self.simu = 10
         #simulate move self.simu times        
         for number in range(self.simu):
             counter = self.simulate(board, move, color)
-            if counter == color:
+            if (counter == color):
                 winCount = winCount + 1   
         return winCount    
 
@@ -90,7 +93,7 @@ class Gomoku():
         results = []
         best = []
         bestScore = RANDOM
-        
+
         for move in board.get_empty_points():
             score = self.check_move(board, color, move)
             results.append((score, move))
@@ -98,7 +101,7 @@ class Gomoku():
 
         #Best move
         for move in results:
-            if move[0] > bestScore:
+            if (move[0] > bestScore):
                 bestScore = move[0]
             elif move[0] < bestScore:
                 break
@@ -106,38 +109,35 @@ class Gomoku():
         return best
 
     def check_move(self, board, color, move):
-        """
-        returns:
-            4 if winning
-            3 if block win
-            2 if open four
-            1 if block open four
-            0 otherwise (random)
-        """
+        #5 Random
+        #4 BlockOpenFour
+        #3 OpenFour
+        #2 BlockWin
+        #1 Win
+        
         board.play_move(move, color)
+        result = RANDOM  
         newPoint = board.unpadded_point(move)
-        lines5 = board.boardLines5[newPoint]
-        maxScore = RANDOM        
-        lines6 = board.boardLines6[newPoint]
+        boardLines5 = board.boardLines5[newPoint]      
+        boardLines6 = board.boardLines6[newPoint]
         oppColor = GoBoardUtil.opponent(color)        
 
-        
-        for line in lines5:
+        for line in boardLines5:
             counts = board.get_counts(line)
-            if color == BLACK:
+            if (color == BLACK):
                 myCount, oppCount, openCount = counts
             else:
                 oppCount, myCount, openCount = counts
-    
-            if myCount == 5:
-                board.undo_move(move)
-                return WIN
-            elif oppCount == 4 and myCount == 1:
-                maxScore = max(BLOCK_WIN, maxScore)          
 
-        for line in lines6:
+            if (oppCount == 4 and myCount == 1):
+                result = max(BLOCK_WIN, result) 
+            elif myCount == 5:
+                board.undo_move(move)
+                return WIN            
+
+        for line in boardLines6:
             counts = board.get_counts(line)
-            if color == BLACK:
+            if (color == BLACK):
                 myCount, oppCount, openCount = counts
             else:
                 oppCount, myCount, openCount = counts
@@ -145,44 +145,42 @@ class Gomoku():
             firstColor = board.board[line[0]]
             lastColor = board.board[line[-1]]
 
-            if myCount == 4 and firstColor == EMPTY and lastColor == EMPTY:
-                maxScore = max(OPEN_FOUR, maxScore)
-            elif myCount == 1 and oppCount == 3 and firstColor != oppColor and lastColor != oppColor:
-                isBlockOpenFour = False
-
+            if (firstColor != oppColor and oppCount == 3 and lastColor != oppColor and myCount == 1):
+                isBlockOpen = False
                 colorLine = tuple(map(lambda m: board.board[m], line))
-                # must hard code these two cases, they are the only six line patterns that match
-                # the above rule, but do not necessarily block an open four
-                if colorLine == (color, EMPTY, oppColor, oppColor, oppColor, EMPTY) or \
-                   colorLine == (EMPTY, oppColor, oppColor, oppColor, EMPTY, color):
 
-                    # There are alot of edge cases here, so we play the move for
-                    # the opposite color and check if they still have an open four available to them
-                    # This may break if there are multiple open fours, which wouldn't happen
-                    # if the rule based policy is followed throughout the game
+                #Special cases, do not remove
+                if (colorLine == (color, EMPTY, oppColor, oppColor, oppColor, EMPTY) or \
+                   colorLine == (EMPTY, oppColor, oppColor, oppColor, EMPTY, color)):
+
+                    #In case rule based policy is not followed
+                    #In case of edge cases
                     bestOppMoves = self.rule_based_moves(board, oppColor)
-                    # We know there are moves left in this case
-                    if bestOppMoves[0][0] < OPEN_FOUR:
-                        isBlockOpenFour = True
+                    if (bestOppMoves[0][0] < OPEN_FOUR):
+                        isBlockOpen = True
                 else:
-                    isBlockOpenFour = True
-                
-                if isBlockOpenFour:
-                    maxScore = max(BLOCK_OPEN_FOUR, maxScore)
+                    isBlockOpen = True
+                    
+                if (isBlockOpen):
+                    result = max(BLOCK_OPEN_FOUR, result)
+            elif (lastColor == EMPTY and firstColor == EMPTY and myCount == 4):
+                result = max(OPEN_FOUR, result)            
 
         board.undo_move(move)
+        return result
 
-        return maxScore
 
 def run():
+
     """
     start the gtp connection and wait for commands.
     """
     board = GoBoard(7)
     con = GtpConnection(Gomoku(), board)
     con.start_connection()
-    
+
 
 if __name__ == "__main__":
+
     run()
-    # cProfile.run('run()')
+
