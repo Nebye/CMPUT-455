@@ -21,10 +21,10 @@ from board_util import (
 import numpy as np
 import re
 
+WIN_BLOCK = 3
+FOUR_OPEN = 2
+BLOCK_FOUR_OPEN = 1
 WIN = 4
-BLOCK_WIN = 3
-OPEN_FOUR = 2
-BLOCK_OPEN_FOUR = 1
 RANDOM = 0
 
 class GtpConnection:
@@ -54,8 +54,6 @@ class GtpConnection:
             "version": self.version_cmd,
             "known_command": self.known_command_cmd,
             "genmove": self.genmove_cmd,
-            "policy": self.policy_cmd,
-            "policy_moves": self.policy_moves_cmd,
             "list_commands": self.list_commands_cmd,
             "play": self.play_cmd,
             "legal_moves": self.legal_moves_cmd,
@@ -65,8 +63,11 @@ class GtpConnection:
             "gogui-rules_side_to_move": self.gogui_rules_side_to_move_cmd,
             "gogui-rules_board": self.gogui_rules_board_cmd,
             "gogui-rules_final_result": self.gogui_rules_final_result_cmd,
-            "gogui-analyze_commands": self.gogui_analyze_cmd
-        }
+            "gogui-analyze_commands": self.gogui_analyze_cmd,
+            
+            "policy": self.policy_cmd,
+            "policy_moves": self.policy_moves_cmd            
+        }  
 
         # used for argument checking
         # values: (required number of arguments,
@@ -263,10 +264,10 @@ class GtpConnection:
         Generate a move for the color args[0] in {'b', 'w'}, for the game of gomoku.
         """
         result = self.board.detect_five_in_a_row()
-        if result == GoBoardUtil.opponent(self.board.current_player):
+        if (result == GoBoardUtil.opponent(self.board.current_player)):
             self.respond("resign")
             return
-        if self.board.get_empty_points().size == 0:
+        if (self.board.get_empty_points().size == 0):
             self.respond("pass")
             return
         board_color = args[0].lower()
@@ -274,59 +275,61 @@ class GtpConnection:
         move = self.go_engine.get_move(self.board, color)
         move_coord = point_to_coord(move, self.board.size)
         move_as_string = format_point(move_coord)
-        if self.board.is_legal(move, color):
+        if (self.board.is_legal(move, color)):
             self.board.play_move(move, color)
             self.respond(move_as_string)
         else:
             self.respond("Illegal move: {}".format(move_as_string))
 
+    # THIS IS NEW
     def policy_cmd(self, args):
-        if args[0] != "random" and args[0] != "rule_based":
-            self.respond("invalid policy! Please use valid policytype: random or rule_based")
+        if (args[0] != "rule_based" and args[0] != "random"):
+            self.respond("Invalid input, must use <random> or <rule_based>")
         else:
             self.policy = args[0]
-            self.respond("policy set to " + self.policy)
-
+            self.respond("policy set = " + self.policy)
+     
+    # THIS IS NEW
     def policy_moves_cmd(self, args):
-        # checks for game over
-        if self.board.detect_five_in_a_row() != EMPTY:
+        # game over check
+        if (self.board.detect_five_in_a_row() != EMPTY):
             self.respond("")
             return
-        # set for Random as defualt
+        # random default set
         move_list = list(map(lambda move: (RANDOM, move), self.board.get_empty_points()))
-        if len(move_list) == 0:
+        if (len(move_list) == 0):
             self.respond("")
             return
-        # change moves to rule_based if policy type is rule_based 
-        if self.policy == "rule_based":
+        # rule_based policy change
+        if (self.policy == "rule_based"):
             move_list = self.go_engine.rule_based_moves(self.board, self.board.current_player)
         
-        # get best moves
+        # best moves
         output = []
         bestMoveScore = RANDOM
         for move in move_list:
-            if move[0] > bestMoveScore:
+            if (move[0] > bestMoveScore):
                 bestMoveScore = move[0]
-            if move[0] < bestMoveScore:
+            if (move[0] < bestMoveScore):
                 break
             moveCoord = point_to_coord(move[1], self.board.size)
             output.append(format_point(moveCoord))
 
-        if bestMoveScore == WIN:
+        if (bestMoveScore == WIN):
             output_str = "Win"
-        elif bestMoveScore == BLOCK_WIN:
+        elif (bestMoveScore == WIN_BLOCK):
             output_str = "BlockWin"
-        elif bestMoveScore == OPEN_FOUR:
+        elif (bestMoveScore == BLOCK_FOUR_OPEN):
+            output_str = "BlockOpenFour"        
+        elif (bestMoveScore == FOUR_OPEN):
             output_str = "OpenFour"
-        elif bestMoveScore == BLOCK_OPEN_FOUR:
-            output_str = "BlockOpenFour"
         else: 
             output_str = "Random"
 
         output.sort()
 
         for moveString in output:
-            output_str += " " + moveString
+            output_str = output_str + " " + moveString
         
         self.respond(output_str)
 

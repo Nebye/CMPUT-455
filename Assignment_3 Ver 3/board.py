@@ -120,8 +120,9 @@ class GoBoard(object):
         self.calculate_rows_cols_diags()
         
         # Cuts our board accordingly
-        self.boardLines5 = self.generate_lines(5)
         self.boardLines6 = self.generate_lines(6)
+        self.boardLines5 = self.generate_lines(5)
+
 
 
     def copy(self):
@@ -134,8 +135,8 @@ class GoBoard(object):
         b.current_player = self.current_player
         
         # Cuts our board accordingly
-        b.boardLines5 = self.boardLines5
         b.boardLines6 = self.boardLines6
+        b.boardLines5 = self.boardLines5
         
         assert b.maxpoint == self.maxpoint
         b.board = np.copy(self.board)
@@ -249,8 +250,8 @@ class GoBoard(object):
         Returns BLACK or WHITE if any five in a rows exist in the list.
         EMPTY otherwise.
         """
-        prev = BORDER
         counter = 1
+        prev = BORDER
         for stone in list:
             if self.get_color(stone) == prev:
                 counter += 1
@@ -263,8 +264,8 @@ class GoBoard(object):
 
     # Our own computation when new board size spawned 
     def generate_lines(self, len):
-        boardCut = []
         size = self.size # since it's a square no need to get width and height separately
+        boardCut = []
         for i in range(size * size): 
             pointLines = \
                 self.horizontal_lines(i, len) + \
