@@ -1,15 +1,5 @@
-"""
-board.py
-
-Implements a basic Go board with functions to:
-- initialize to a given board size
-- check if a move is legal
-- play a move
-
-The board uses a 1-dimensional representation with padding
-"""
-
 import numpy as np
+
 from board_util import (
     GoBoardUtil,
     BLACK,
@@ -43,16 +33,17 @@ class GoBoard(object):
         self.reset(size)
 
     def calculate_rows_cols_diags(self):
-        if self.size < 5:
+        if (self.size < 5):
             return
-        # precalculate all rows, cols, and diags for 5-in-a-row detection
+        # all win scenarios for 5's
         self.rows = []
         self.cols = []
 
     def calculate_rows_cols_diags(self):
-        if self.size < 5:
+        if (self.size < 5):
             return
-        # precalculate all rows, cols, and diags for 5-in-a-row detection
+        
+        # all win scenarios for 5's
         self.rows = []
         self.cols = []
         for i in range(1, self.size + 1):
@@ -69,7 +60,7 @@ class GoBoard(object):
             self.cols.append(current_col)
 
         self.diags = []
-        # diag towards SE, starting from first row (1,1) moving right to (1,n)
+        # SE diagonal
         start = self.row_start(1)
         for i in range(start, start + self.size):
             diag_SE = []
@@ -79,7 +70,7 @@ class GoBoard(object):
                 pt += self.NS + 1
             if len(diag_SE) >= 5:
                 self.diags.append(diag_SE)
-        # diag towards SE and NE, starting from (2,1) downwards to (n,1)
+        # SE/NE diagonal
         for i in range(start + self.NS, self.row_start(self.size) + 1, self.NS):
             diag_SE = []
             diag_NE = []
@@ -95,7 +86,7 @@ class GoBoard(object):
                 self.diags.append(diag_SE)
             if len(diag_NE) >= 5:
                 self.diags.append(diag_NE)
-        # diag towards NE, starting from (n,2) moving right to (n,n)
+        # NE diagonal
         start = self.row_start(self.size) + 1
         for i in range(start, start + self.size):
             diag_NE = []
@@ -343,18 +334,15 @@ class GoBoard(object):
         return EMPTY
 
     def get_counts(self, line):
-        b_count = 0
-        w_count = 0
-        e_count = 0
-
+        b_count = w_count = e_count = 0
         for p in line:
             stone = self.board[p]
-            if stone == BLACK:
-                b_count += 1
-            elif stone == WHITE:
-                w_count += 1
+            if (stone == BLACK):
+                b_count = b_count + 1
+            elif (stone == WHITE):
+                w_count = w_count + 1
             else:
-                e_count += 1
+                e_count = e_count + 1
 
         return b_count, w_count, e_count
 
