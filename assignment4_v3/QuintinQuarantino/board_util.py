@@ -129,7 +129,31 @@ class GoBoardUtil(object):
         return legal_moves
 
     @staticmethod
-    def generate_random_move(board, color):
+    def generate_legal_moves_gomoku(board):
+        """
+        generate a list of all legal moves on the board for gomoku, where
+        all empty positions are legal.
+        """
+        moves = board.get_empty_points()
+        legal_moves = []
+        for move in moves:
+            legal_moves.append(move)
+        shuffle(legal_moves)
+        return legal_moves
+    
+    @staticmethod
+    def generate_random_move_gomoku(board):
+        """
+        Generate a random move for the game of Gomoku.
+        """
+        moves = board.get_empty_points()
+        if len(moves) == 0:
+            return PASS
+        np.random.shuffle(moves)
+        return moves[0]    
+
+    @staticmethod       
+    def generate_random_move(board, color, use_eye_filter):
         """
         Generate a random move.
         Return PASS if no move found
@@ -142,10 +166,13 @@ class GoBoardUtil(object):
             the color to generate the move for.
         """
         moves = board.get_empty_points()
-        if len(moves) == 0:
-            return PASS
         np.random.shuffle(moves)
-        return moves[0]
+        for move in moves:
+            legal = not (use_eye_filter and board.is_eye(move, color)) \
+                    and board.is_legal(move, color)
+            if legal:
+                return move
+        return PASS
 
     @staticmethod
     def generate_random_moves(board, use_eye_filter):
@@ -176,17 +203,8 @@ class GoBoardUtil(object):
         Rows 1..size of goboard are copied into rows 0..size - 1 of board2d
         """
         size = goboard.size
-        board2d = [[''] * size] * size
+        board2d = np.zeros((size, size), dtype = np.int32)
         for row in range(size):
             start = goboard.row_start(row + 1)
-            board2d[row] = list(map(display_color, goboard.board[start : start + size]))
+            board2d[row, :] = goboard.board[start : start + size]
         return board2d
-
-
-def display_color(c):
-    if c == EMPTY:
-        return '.'
-    elif c == BLACK:
-        return '0'
-    else:
-        return '1'
