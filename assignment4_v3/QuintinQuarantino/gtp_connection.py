@@ -8,6 +8,10 @@ at the University of Edinburgh.
 """
 import traceback
 from sys import stdin, stdout, stderr
+
+import numpy as np
+import re
+
 from board_util import (
     GoBoardUtil,
     BLACK,
@@ -18,14 +22,12 @@ from board_util import (
     MAXSIZE,
     coord_to_point,
 )
-import numpy as np
-import re
 
-WIN = 4
-BLOCK_WIN = 3
-OPEN_FOUR = 2
 BLOCK_OPEN_FOUR = 1
 RANDOM = 0
+BLOCK_WIN = 3
+WIN = 4
+OPEN_FOUR = 2
 
 class GtpConnection:
     def __init__(self, go_engine, board, debug_mode=False):
@@ -272,11 +274,11 @@ class GtpConnection:
         Generate a move for the color args[0] in {'b', 'w'}, for the game of gomoku.
         """
         result = self.board.detect_five_in_a_row()
-        # print(self.board2d())
-        if result == GoBoardUtil.opponent(self.board.current_player):
+        
+        if (result == GoBoardUtil.opponent(self.board.current_player)):
             self.respond("resign")
             return
-        if self.board.get_empty_points().size == 0:
+        if (self.board.get_empty_points().size == 0):
             self.respond("pass")
             return
         board_color = args[0].lower()
@@ -298,48 +300,47 @@ class GtpConnection:
             self.respond("policy set to " + self.policy)
 
     def policy_moves_cmd(self, args):
-        # checks for game over
-        if self.board.detect_five_in_a_row() != EMPTY:
+        # end game check
+        if (self.board.detect_five_in_a_row() != EMPTY):
             self.respond("")
             return
-        # set for Random as defualt
+        # random is default
         move_list = list(map(lambda move: (RANDOM, move), self.board.get_empty_points()))
         if len(move_list) == 0:
             self.respond("")
             return
-        # change moves to rule_based if policy type is rule_based 
-        if self.policy == "rule_based":
+        # change move policy 
+        if (self.policy == "rule_based"):
             move_list = self.go_engine.rule_based_moves(self.board, self.board.current_player)
         
-        # get best moves
+        
+        # best move
         output = []
         bestMoveScore = RANDOM
         for move in move_list:
-            if move[0] > bestMoveScore:
+            if (move[0] > bestMoveScore):
                 bestMoveScore = move[0]
-            if move[0] < bestMoveScore:
+            if (move[0] < bestMoveScore):
                 break
             moveCoord = point_to_coord(move[1], self.board.size)
             output.append(format_point(moveCoord))
 
-        if bestMoveScore == WIN:
+        if (bestMoveScore == WIN):
             output_str = "Win"
-        elif bestMoveScore == BLOCK_WIN:
+        elif (bestMoveScore == BLOCK_OPEN_FOUR):
+            output_str = "BlockOpenFour"    
+        elif (bestMoveScore == OPEN_FOUR):
+            output_str = "OpenFour"        
+        elif (bestMoveScore == BLOCK_WIN):
             output_str = "BlockWin"
-        elif bestMoveScore == OPEN_FOUR:
-            output_str = "OpenFour"
-        elif bestMoveScore == BLOCK_OPEN_FOUR:
-            output_str = "BlockOpenFour"
         else: 
             output_str = "Random"
-
         output.sort()
 
         for moveString in output:
             output_str += " " + moveString
         
         self.respond(output_str)
-
         return    
            
     def gogui_rules_game_id_cmd(self, args):
