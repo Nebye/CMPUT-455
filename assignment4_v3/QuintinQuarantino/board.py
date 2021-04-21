@@ -253,7 +253,7 @@ class GoBoard(object):
         return EMPTY
 
     # compute upon new board size
-    def generate_lines(self, length):
+    def generate_lines(self, length):  
         boardLines = []
         size = self.size
         for p in range(size * size):
@@ -268,21 +268,21 @@ class GoBoard(object):
     def horizontal_lines(self, pt, length):
         lines = []
         size = self.size
-        start = max(pt - (length - 1), pt - (pt % size))
+        beg = max(pt - (length - 1), pt - (pt % size))
         end = min(pt + (length - 1), size * (pt // size + 1) - 1)
 
-        for i in range(end - start - (length - 2)):
-            lines.append(list(map(self.padded_point, range(start + i, start + i + length))))
+        for i in range(end - beg - (length - 2)):
+            lines.append(list(map(self.padded_point, range(beg + i, beg + i + length))))
 
         return lines
 
     def vertical_lines(self, pt, length):
         lines = []
         size = self.size    
-        start = max(pt - ((length - 1) * size), pt % size)
+        beg = max(pt - ((length - 1) * size), pt % size)
         end = min(pt + ((length - 1) * size), (size - 1) * size + (pt % size))
 
-        for i in range(start, end - ((length - 1) * size) + 1, size):
+        for i in range(beg, end - ((length - 1) * size) + 1, size):
             lines.append(list(map(self.padded_point, range(i, i + ((length - 1) * size) + 1, size))))
 
         return lines
@@ -293,7 +293,7 @@ class GoBoard(object):
         row = pt // size
         col = pt % size
 
-        if dir == size - 1:
+        if (dir == size - 1):
             maxBackwardDist = min(row, size - col - 1, length - 1)
             maxForwardDist = min(size - row - 1, col, length - 1)
         else:
@@ -326,9 +326,9 @@ class GoBoard(object):
         lines = self.boardLines5[newPoint]
         for line in lines:
             b_count, w_count, e_count = self.get_counts(line)
-            if b_count == 5:
+            if (b_count == 5):
                 return BLACK
-            elif w_count == 5:
+            elif (w_count == 5):
                 return WHITE
 
         return EMPTY
